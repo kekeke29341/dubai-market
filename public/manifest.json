@@ -1,0 +1,41 @@
+{
+  "name": "Dubai Market",
+  "short_name": "DubaiMkt",
+  "description": "Buy & Sell in Dubai — the easiest way to find great deals on pre-owned items.",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#ffffff",
+  "theme_color": "#f59e0b",
+  "categories": ["shopping", "lifestyle"],
+  "icons": [
+    {
+      "src": "/icon-192",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-512",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Sell an item",
+      "short_name": "Sell",
+      "description": "List a new item for sale",
+      "url": "/sell",
+      "icons": [{ "src": "/icon-192", "sizes": "192x192" }]
+    },
+    {
+      "name": "My Page",
+      "short_name": "Me",
+      "url": "/mypage",
+      "icons": [{ "src": "/icon-192", "sizes": "192x192" }]
+    }
+  ],
+  "prefer_related_applications": false
+}
