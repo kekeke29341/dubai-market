@@ -58,7 +58,7 @@ export default function ReportButton({ itemId, currentUserId }: ReportButtonProp
         toast.error('Failed to submit report')
       }
     } else {
-      toast.success('Report submitted — we'll review it shortly')
+      toast.success("Report submitted — we'll review it shortly")
       setOpen(false)
       setReason('')
       setDetails('')
