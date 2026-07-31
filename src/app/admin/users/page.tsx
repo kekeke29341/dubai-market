@@ -181,7 +181,7 @@ export default async function AdminUsersPage({ searchParams }: PageProps) {
             <div className="flex gap-2">
               {page > 1 && (
                 <Link
-                  href={`/admin/users?${new URLSearchParams({ ...searchParams, page: String(page - 1) })}`}
+                  href={`/admin/users?${new URLSearchParams(Object.fromEntries(Object.entries({ ...searchParams, page: String(page - 1) }).filter(([, v]) => v !== undefined)) as Record<string, string>)}`}
                   className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm hover:bg-gray-50 transition"
                 >
                   Previous
@@ -189,7 +189,7 @@ export default async function AdminUsersPage({ searchParams }: PageProps) {
               )}
               {page < totalPages && (
                 <Link
-                  href={`/admin/users?${new URLSearchParams({ ...searchParams, page: String(page + 1) })}`}
+                  href={`/admin/users?${new URLSearchParams(Object.fromEntries(Object.entries({ ...searchParams, page: String(page + 1) }).filter(([, v]) => v !== undefined)) as Record<string, string>)}`}
                   className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm hover:bg-gray-50 transition"
                 >
                   Next

@@ -1,4 +1,4 @@
-export const metadata = { title: 'Offline — Dubai Market' }
+'use client'
 
 export default function OfflinePage() {
   return (
