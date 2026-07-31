@@ -121,7 +121,7 @@ export default function ItemDetailActions({
           {confirmSold ? (
             <div className="flex flex-col gap-2 p-3 bg-amber-50 border border-amber-200 rounded-xl">
               <p className="text-sm font-medium text-amber-800 text-center">Mark this item as sold?</p>
-              <p className="text-xs text-amber-600 text-center">Buyers won't be able to message you about it.</p>
+              <p className="text-xs text-amber-600 text-center">Buyers won&apos;t be able to message you about it.</p>
               <div className="flex gap-2">
                 <button
                   onClick={() => setConfirmSold(false)}
