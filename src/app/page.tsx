@@ -72,10 +72,7 @@ export default async function HomePage({ searchParams }: PageProps) {
       </div>
 
       {/* Personalized recommendations (logged in, no active filter) */}
-      {user && !hasSearchOrFilter && (
-        // @ts-expect-error async server component
-        <RecommendedItems userId={user.id} />
-      )}
+      {user && !hasSearchOrFilter && <RecommendedItems userId={user.id} />}
 
       {/* Filter + result header */}
       <div className="flex items-center justify-between mb-4 flex-wrap gap-3">
