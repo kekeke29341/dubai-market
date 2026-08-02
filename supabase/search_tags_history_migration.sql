@@ -1,5 +1,10 @@
 -- ============================================================
--- 1. Full-text search index on items
+-- 1. Brand column on items (must exist before search_vector)
+-- ============================================================
+ALTER TABLE items ADD COLUMN IF NOT EXISTS brand text;
+
+-- ============================================================
+-- 2. Full-text search index on items
 -- ============================================================
 ALTER TABLE items ADD COLUMN IF NOT EXISTS search_vector tsvector
   GENERATED ALWAYS AS (
@@ -10,11 +15,6 @@ ALTER TABLE items ADD COLUMN IF NOT EXISTS search_vector tsvector
   ) STORED;
 
 CREATE INDEX IF NOT EXISTS items_search_vector_idx ON items USING gin(search_vector);
-
--- ============================================================
--- 2. Brand column on items (if not already present)
--- ============================================================
-ALTER TABLE items ADD COLUMN IF NOT EXISTS brand text;
 
 -- ============================================================
 -- 3. Tags (many-to-many via item_tags join table)

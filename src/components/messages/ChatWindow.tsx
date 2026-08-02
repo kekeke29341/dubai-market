@@ -59,6 +59,18 @@ export default function ChatWindow({ conversation, initialMessages, currentUserI
           if (data) {
             setMessages((prev) => {
               if (prev.find((m) => m.id === data.id)) return prev
+              // Replace matching optimistic bubble so we don't show duplicates
+              const optimisticIdx = prev.findIndex(
+                (m) =>
+                  String(m.id).startsWith('optimistic-') &&
+                  m.sender_id === data.sender_id &&
+                  m.content === data.content,
+              )
+              if (optimisticIdx >= 0) {
+                const next = [...prev]
+                next[optimisticIdx] = data as any
+                return next
+              }
               return [...prev, data as any]
             })
             if (data.sender_id !== currentUserId) {

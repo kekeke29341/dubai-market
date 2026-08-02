@@ -19,11 +19,13 @@ export function useNotificationCount() {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) { setCount(0); return }
       userId = user.id
-      const { count: c } = await supabase
+      const { count: c, error } = await supabase
         .from('notifications')
         .select('id', { count: 'exact', head: true })
         .eq('user_id', user.id)
         .eq('read', false)
+      // Table may be missing before migration is applied
+      if (error) { setCount(0); return }
       setCount(c ?? 0)
     }
 
