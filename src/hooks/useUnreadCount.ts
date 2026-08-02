@@ -36,16 +36,16 @@ export function useUnreadCount() {
       await fetch()
 
       // Realtime subscription — re-fetch on any conversation change
-      const channel = supabase
-        .channel('unread-count')
-        .on('postgres_changes', {
-          event: '*',
-          schema: 'public',
-          table: 'conversations',
-        }, fetch)
-        .subscribe()
+      const channelName = `unread-count-${Math.random().toString(36).slice(2)}`
+      const channel = supabase.channel(channelName)
+      channel.on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'conversations' },
+        () => { void fetch() },
+      )
+      channel.subscribe()
 
-      return () => { supabase.removeChannel(channel) }
+      return () => { void supabase.removeChannel(channel) }
     }
 
     let cleanup: (() => void) | undefined

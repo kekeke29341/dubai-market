@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useRef } from 'react'
 import { createClient } from '@/lib/supabase/client'
 
 const PAGE_SIZE = 20
@@ -34,44 +34,93 @@ export function useInfiniteItems(opts: UseInfiniteItemsOptions) {
   const [page, setPage] = useState(0)
   const [hasMore, setHasMore] = useState(true)
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  // Keep latest filter/page flags in refs so Strict Mode remounts don't drop in-flight loads
+  const loadingRef = useRef(false)
+  const hasMoreRef = useRef(true)
+  const pageRef = useRef(0)
+  const optsRef = useRef(opts)
+  optsRef.current = opts
 
   const loadMore = useCallback(async () => {
-    if (loading || !hasMore) return
+    if (loadingRef.current || !hasMoreRef.current) return
+    loadingRef.current = true
     setLoading(true)
-    const supabase = createClient()
-    const offset = page * PAGE_SIZE
+    setError(null)
 
-    let query = supabase
-      .from('items')
-      .select('id, title, price, currency, images, condition, status, location, favorites_count, created_at, profiles!seller_id(id, username, avatar_url, rating)')
-      .eq('status', 'active')
+    try {
+      const supabase = createClient()
+      const currentOpts = optsRef.current
+      const offset = pageRef.current * PAGE_SIZE
 
-    if (opts.q) query = query.textSearch('search_vector', opts.q, { type: 'websearch', config: 'english' })
-    if (opts.condition) query = query.eq('condition', opts.condition)
-    if (opts.minPrice) query = query.gte('price', parseFloat(opts.minPrice))
-    if (opts.maxPrice) query = query.lte('price', parseFloat(opts.maxPrice))
-    if (opts.brand) query = query.ilike('brand', `%${opts.brand}%`)
+      let query = supabase
+        .from('items')
+        .select('id, title, price, currency, images, condition, status, location, favorites_count, created_at, profiles!seller_id(id, username, avatar_url, rating)')
+        .eq('status', 'active')
 
-    const sort = opts.sort || 'newest'
-    if (sort === 'newest') query = query.order('created_at', { ascending: false })
-    else if (sort === 'price_asc') query = query.order('price', { ascending: true })
-    else if (sort === 'price_desc') query = query.order('price', { ascending: false })
-    else if (sort === 'popular') query = query.order('favorites_count', { ascending: false })
+      if (currentOpts.q) {
+        // search_vector may be absent before migration — fall back to ilike
+        query = query.or(`title.ilike.%${currentOpts.q}%,description.ilike.%${currentOpts.q}%`)
+      }
+      if (currentOpts.category) {
+        const { data: cat } = await supabase
+          .from('categories')
+          .select('id')
+          .eq('slug', currentOpts.category)
+          .maybeSingle()
+        if (cat?.id) query = query.eq('category_id', cat.id)
+        else {
+          // Unknown slug → empty result
+          setItems([])
+          hasMoreRef.current = false
+          setHasMore(false)
+          return
+        }
+      }
+      if (currentOpts.condition) query = query.eq('condition', currentOpts.condition)
+      if (currentOpts.minPrice) query = query.gte('price', parseFloat(currentOpts.minPrice))
+      if (currentOpts.maxPrice) query = query.lte('price', parseFloat(currentOpts.maxPrice))
+      if (currentOpts.brand) query = query.ilike('brand', `%${currentOpts.brand}%`)
 
-    const { data } = await query.range(offset, offset + PAGE_SIZE - 1)
-    const rows = (data ?? []) as unknown as ItemRow[]
+      const sort = currentOpts.sort || 'newest'
+      if (sort === 'newest') query = query.order('created_at', { ascending: false })
+      else if (sort === 'price_asc') query = query.order('price', { ascending: true })
+      else if (sort === 'price_desc') query = query.order('price', { ascending: false })
+      else if (sort === 'popular') query = query.order('favorites_count', { ascending: false })
 
-    setItems((prev) => (page === 0 ? rows : [...prev, ...rows]))
-    setPage((p) => p + 1)
-    setHasMore(rows.length === PAGE_SIZE)
-    setLoading(false)
-  }, [loading, hasMore, page, opts])
+      const { data, error: queryError } = await query.range(offset, offset + PAGE_SIZE - 1)
+      if (queryError) throw queryError
+
+      const rows = (data ?? []) as unknown as ItemRow[]
+      const nextPage = pageRef.current + 1
+      pageRef.current = nextPage
+      hasMoreRef.current = rows.length === PAGE_SIZE
+
+      setItems((prev) => (offset === 0 ? rows : [...prev, ...rows]))
+      setPage(nextPage)
+      setHasMore(rows.length === PAGE_SIZE)
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Failed to load items'
+      setError(message)
+      hasMoreRef.current = false
+      setHasMore(false)
+    } finally {
+      loadingRef.current = false
+      setLoading(false)
+    }
+  }, [])
 
   const reset = useCallback(() => {
+    loadingRef.current = false
+    hasMoreRef.current = true
+    pageRef.current = 0
     setItems([])
     setPage(0)
     setHasMore(true)
+    setLoading(false)
+    setError(null)
   }, [])
 
-  return { items, loadMore, hasMore, loading, reset }
+  return { items, loadMore, hasMore, loading, reset, error }
 }

@@ -1,36 +1,31 @@
 /**
  * Centralized Supabase env access.
- * NEXT_PUBLIC_* values are inlined at build time on Vercel — they must be set
- * in the project Environment Variables before deploying.
+ * NEXT_PUBLIC_* values are inlined at build time — Next.js only replaces
+ * static `process.env.NEXT_PUBLIC_*` access, not dynamic `process.env[name]`.
  */
 
-function required(name: string): string {
-  const value = process.env[name]
-  if (!value) {
-    throw new Error(
-      `Missing environment variable: ${name}. ` +
-        `Set it in Vercel Project Settings → Environment Variables ` +
-        `(see .env.local.example).`
-    )
-  }
-  return value
+function missing(name: string): never {
+  throw new Error(
+    `Missing environment variable: ${name}. ` +
+      `Set it in .env.local (local) or Vercel Project Settings → Environment Variables.`,
+  )
 }
 
 export function getSupabaseUrl(): string {
-  return required('NEXT_PUBLIC_SUPABASE_URL')
+  return process.env.NEXT_PUBLIC_SUPABASE_URL || missing('NEXT_PUBLIC_SUPABASE_URL')
 }
 
 export function getSupabaseAnonKey(): string {
-  return required('NEXT_PUBLIC_SUPABASE_ANON_KEY')
+  return process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || missing('NEXT_PUBLIC_SUPABASE_ANON_KEY')
 }
 
 export function getSupabaseServiceRoleKey(): string {
-  return required('SUPABASE_SERVICE_ROLE_KEY')
+  return process.env.SUPABASE_SERVICE_ROLE_KEY || missing('SUPABASE_SERVICE_ROLE_KEY')
 }
 
 export function hasSupabaseEnv(): boolean {
   return Boolean(
     process.env.NEXT_PUBLIC_SUPABASE_URL &&
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
   )
 }

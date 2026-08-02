@@ -21,19 +21,15 @@ export default function InfiniteItemGrid({
   favoriteItemIds, currentUserId,
 }: InfiniteItemGridProps) {
   const opts = { q, category, condition, minPrice, maxPrice, sort, brand }
-  const { items, loadMore, hasMore, loading, reset } = useInfiniteItems(opts)
+  const { items, loadMore, hasMore, loading, reset, error } = useInfiniteItems(opts)
   const sentinelRef = useRef<HTMLDivElement>(null)
 
-  // Reset and reload when filter params change
+  // Reset and reload when filter params change (single effect avoids Strict Mode races)
   const optsKey = JSON.stringify(opts)
   useEffect(() => {
     reset()
-  }, [optsKey]) // eslint-disable-line react-hooks/exhaustive-deps
-
-  // Initial load after reset
-  useEffect(() => {
-    loadMore()
-  }, [optsKey]) // eslint-disable-line react-hooks/exhaustive-deps
+    void loadMore()
+  }, [optsKey, reset, loadMore])
 
   // Intersection observer for infinite scroll
   const handleIntersect = useCallback((entries: IntersectionObserverEntry[]) => {
@@ -53,8 +49,8 @@ export default function InfiniteItemGrid({
   if (!loading && items.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-20 text-center text-gray-400">
-        <p className="text-lg font-medium">No items found</p>
-        <p className="text-sm mt-1">Try adjusting your search or filters</p>
+        <p className="text-lg font-medium">{error ? 'Could not load items' : 'No items found'}</p>
+        <p className="text-sm mt-1">{error || 'Try adjusting your search or filters'}</p>
       </div>
     )
   }

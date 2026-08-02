@@ -29,22 +29,22 @@ export function useNotificationCount() {
 
     fetch()
 
-    const channel = supabase
-      .channel('notification-count')
-      .on('postgres_changes', {
-        event: '*',
-        schema: 'public',
-        table: 'notifications',
-      }, () => fetch())
-      .subscribe()
+    const channelName = `notification-count-${Math.random().toString(36).slice(2)}`
+    const channel = supabase.channel(channelName)
+    channel.on(
+      'postgres_changes',
+      { event: '*', schema: 'public', table: 'notifications' },
+      () => { void fetch() },
+    )
+    channel.subscribe()
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
       if (event === 'SIGNED_OUT') setCount(0)
-      else fetch()
+      else void fetch()
     })
 
     return () => {
-      channel.unsubscribe()
+      void supabase.removeChannel(channel)
       subscription.unsubscribe()
     }
   }, [])
