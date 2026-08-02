@@ -14,13 +14,21 @@ export default function BottomNav() {
   const notifCount = useNotificationCount()
 
   useEffect(() => {
-    const supabase = createClient()
-    supabase.auth.getUser().then(({ data }) => setIsLoggedIn(!!data.user))
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_, session) => {
-      setIsLoggedIn(!!session?.user)
-    })
-    return () => subscription.unsubscribe()
+    try {
+      const supabase = createClient()
+      supabase.auth.getUser().then(({ data }) => setIsLoggedIn(!!data.user))
+      const { data: { subscription } } = supabase.auth.onAuthStateChange((_, session) => {
+        setIsLoggedIn(!!session?.user)
+      })
+      return () => subscription.unsubscribe()
+    } catch {
+      // Supabase env not configured yet
+    }
   }, [])
+
+  // Full-screen chat: hide tab bar so the composer isn't covered
+  const hideOnChat = /^\/messages\/[^/]+/.test(pathname)
+  if (hideOnChat) return null
 
   const isActive = (href: string) => {
     if (href === '/') return pathname === '/'
@@ -31,24 +39,24 @@ export default function BottomNav() {
     <Link
       href={href}
       className={cn(
-        'flex flex-col items-center gap-0.5 px-3 py-2 rounded-xl transition-colors',
-        isActive(href) ? 'text-amber-500' : 'text-gray-400 hover:text-gray-600'
+        'flex flex-col items-center gap-0.5 min-w-0 flex-1 py-1.5 rounded-xl transition-colors active:bg-gray-50',
+        isActive(href) ? 'text-amber-500' : 'text-gray-400'
       )}
     >
       <Icon className="w-6 h-6" strokeWidth={isActive(href) ? 2.5 : 1.8} />
-      <span className="text-[10px] font-medium">{label}</span>
+      <span className="text-[10px] font-medium truncate">{label}</span>
     </Link>
   )
 
   return (
-    <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-gray-200 safe-bottom">
-      <div className="flex items-center justify-around px-2 py-1">
+    <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-sm border-t border-gray-200 safe-bottom">
+      <div className="flex items-end justify-around px-1 pt-1">
         {navItem('/', Home, 'Home')}
         {navItem('/search', Search, 'Search')}
 
         {/* Sell CTA — center pill */}
-        <Link href="/sell" className="flex flex-col items-center gap-0.5 px-3 py-1">
-          <div className="w-12 h-12 bg-amber-500 hover:bg-amber-600 active:bg-amber-700 rounded-full flex items-center justify-center shadow-lg transition-colors -mt-4">
+        <Link href="/sell" className="flex flex-col items-center gap-0.5 flex-1 min-w-0 py-1">
+          <div className="w-12 h-12 bg-amber-500 active:bg-amber-700 rounded-full flex items-center justify-center shadow-lg transition-colors -mt-4">
             <Plus className="w-6 h-6 text-white" strokeWidth={2.5} />
           </div>
           <span className="text-[10px] font-medium text-amber-500">Sell</span>
@@ -58,8 +66,8 @@ export default function BottomNav() {
         <Link
           href="/notifications"
           className={cn(
-            'relative flex flex-col items-center gap-0.5 px-3 py-2 rounded-xl transition-colors',
-            isActive('/notifications') ? 'text-amber-500' : 'text-gray-400 hover:text-gray-600'
+            'relative flex flex-col items-center gap-0.5 min-w-0 flex-1 py-1.5 rounded-xl transition-colors active:bg-gray-50',
+            isActive('/notifications') ? 'text-amber-500' : 'text-gray-400'
           )}
           aria-label={`Notifications${notifCount > 0 ? ` (${notifCount} unread)` : ''}`}
         >

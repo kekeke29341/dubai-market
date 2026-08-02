@@ -171,7 +171,7 @@ export default function ItemForm({ categories, initialData, mode = 'create' }: I
         <label className="text-sm font-medium text-gray-700 block mb-2">
           Photos <span className="text-gray-400 font-normal">({images.length}/8)</span>
         </label>
-        <div className="grid grid-cols-4 gap-2 mb-2">
+        <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 mb-2">
           {images.map((img, i) => (
             <div key={i} className="relative aspect-square rounded-xl overflow-hidden bg-gray-100">
               <Image src={img} alt={`Photo ${i + 1}`} fill className="object-cover" sizes="120px" />

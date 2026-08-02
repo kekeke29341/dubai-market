@@ -236,14 +236,14 @@ export default function FilterBar() {
         </div>
       )}
 
-      {/* Mobile bottom sheet */}
+      {/* Mobile bottom sheet — above bottom nav */}
       {open && (
-        <div className="md:hidden fixed inset-0 z-50 flex flex-col justify-end">
+        <div className="md:hidden fixed inset-0 z-[60] flex flex-col justify-end">
           {/* Backdrop */}
           <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setOpen(false)} />
 
           {/* Sheet */}
-          <div className="relative bg-white rounded-t-3xl px-5 pt-4 pb-safe max-h-[85vh] overflow-y-auto">
+          <div className="relative bg-white rounded-t-3xl px-5 pt-4 pb-safe max-h-[85dvh] overflow-y-auto">
             {/* Drag handle */}
             <div className="w-10 h-1 rounded-full bg-gray-300 mx-auto mb-4" />
 

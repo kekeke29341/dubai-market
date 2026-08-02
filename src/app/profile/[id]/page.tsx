@@ -91,21 +91,21 @@ export default async function ProfilePage({ params }: PageProps) {
     .limit(20)
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-8">
+    <div className="max-w-4xl mx-auto px-3 sm:px-4 py-4 sm:py-8">
       {/* Profile header */}
-      <div className="flex items-start gap-5 mb-8">
-        <div className="w-20 h-20 rounded-full bg-amber-100 flex items-center justify-center overflow-hidden flex-shrink-0">
+      <div className="flex items-start gap-3 sm:gap-5 mb-6 sm:mb-8">
+        <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-amber-100 flex items-center justify-center overflow-hidden flex-shrink-0">
           {profile.avatar_url ? (
             <Image src={profile.avatar_url} alt={profile.username} width={80} height={80} className="object-cover rounded-full" />
           ) : (
-            <span className="text-amber-600 font-bold text-3xl">
+            <span className="text-amber-600 font-bold text-2xl sm:text-3xl">
               {getInitials(profile.username)}
             </span>
           )}
         </div>
-        <div className="flex-1">
-          <h1 className="text-2xl font-bold text-gray-900">{profile.username}</h1>
-          {profile.full_name && <p className="text-gray-500">{profile.full_name}</p>}
+        <div className="flex-1 min-w-0">
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-900 truncate">{profile.username}</h1>
+          {profile.full_name && <p className="text-gray-500 text-sm sm:text-base truncate">{profile.full_name}</p>}
 
           <div className="flex flex-wrap items-center gap-4 mt-2 text-sm text-gray-500">
             <div className="flex items-center gap-1">

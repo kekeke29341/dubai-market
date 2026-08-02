@@ -17,7 +17,6 @@ interface ItemCardProps {
 }
 
 export default function ItemCard({ item, isFavorited = false, currentUserId }: ItemCardProps) {
-  const supabase = createClient()
   const [favorited, setFavorited] = useState(isFavorited)
   const [favCount, setFavCount] = useState(item.favorites_count)
   const [toggling, setToggling] = useState(false)
@@ -32,6 +31,7 @@ export default function ItemCard({ item, isFavorited = false, currentUserId }: I
     }
     if (toggling) return
     setToggling(true)
+    const supabase = createClient()
 
     if (favorited) {
       const { error } = await supabase
@@ -101,21 +101,21 @@ export default function ItemCard({ item, isFavorited = false, currentUserId }: I
         </div>
 
         {/* Info */}
-        <div className="p-3">
-          <p className="text-base font-bold text-gray-900">
+        <div className="p-2.5 sm:p-3">
+          <p className="text-sm sm:text-base font-bold text-gray-900 leading-snug">
             {formatPrice(item.price, item.currency)}
           </p>
-          <p className="text-sm text-gray-700 mt-0.5 truncate">{item.title}</p>
-          <div className="flex items-center justify-between mt-2">
-            <span className={cn('text-xs px-1.5 py-0.5 rounded-full', CONDITION_COLORS[item.condition])}>
+          <p className="text-xs sm:text-sm text-gray-700 mt-0.5 truncate">{item.title}</p>
+          <div className="flex items-center justify-between gap-1 mt-1.5 sm:mt-2">
+            <span className={cn('text-[10px] sm:text-xs px-1.5 py-0.5 rounded-full truncate', CONDITION_COLORS[item.condition])}>
               {CONDITION_LABELS[item.condition]}
             </span>
-            <div className="flex items-center gap-1 text-xs text-gray-400">
-              <MapPin className="w-3 h-3" />
-              <span className="truncate max-w-[80px]">{item.location}</span>
+            <div className="flex items-center gap-0.5 text-[10px] sm:text-xs text-gray-400 min-w-0">
+              <MapPin className="w-3 h-3 flex-shrink-0" />
+              <span className="truncate max-w-[60px] sm:max-w-[80px]">{item.location}</span>
             </div>
           </div>
-          <p className="text-xs text-gray-400 mt-1">{formatRelativeTime(item.created_at)}</p>
+          <p className="text-[10px] sm:text-xs text-gray-400 mt-1">{formatRelativeTime(item.created_at)}</p>
         </div>
       </div>
     </Link>

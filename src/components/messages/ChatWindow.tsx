@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useEffect, useRef, useCallback } from 'react'
-import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import Link from 'next/link'
 import { Send, ChevronLeft, Package } from 'lucide-react'
@@ -22,7 +21,6 @@ interface ChatWindowProps {
 
 export default function ChatWindow({ conversation, initialMessages, currentUserId }: ChatWindowProps) {
   const supabase = createClient()
-  const router = useRouter()
   const [messages, setMessages] = useState<Message[]>(initialMessages)
   const [input, setInput] = useState('')
   const [sending, setSending] = useState(false)
@@ -53,7 +51,6 @@ export default function ChatWindow({ conversation, initialMessages, currentUserI
           filter: `conversation_id=eq.${conversation.id}`,
         },
         async (payload) => {
-          // Fetch with sender info
           const { data } = await supabase
             .from('messages')
             .select('*, sender:profiles(id, username, avatar_url)')
@@ -64,7 +61,6 @@ export default function ChatWindow({ conversation, initialMessages, currentUserI
               if (prev.find((m) => m.id === data.id)) return prev
               return [...prev, data as any]
             })
-            // Mark as read if it's not our message
             if (data.sender_id !== currentUserId) {
               await supabase
                 .from('conversations')
@@ -89,7 +85,6 @@ export default function ChatWindow({ conversation, initialMessages, currentUserI
     setSending(true)
     setInput('')
 
-    // Optimistic UI: show message immediately
     const optimisticMsg: Message = {
       id: `optimistic-${Date.now()}`,
       conversation_id: conversation.id,
@@ -107,12 +102,10 @@ export default function ChatWindow({ conversation, initialMessages, currentUserI
     })
 
     if (error) {
-      // Roll back optimistic message on failure
       setMessages((prev) => prev.filter((m) => m.id !== optimisticMsg.id))
       setInput(content)
     }
 
-    // Use DB-side increment via RPC to avoid stale count race condition
     const isOtherBuyer = !isBuyer
     await supabase.rpc('increment_unread', {
       conv_id: conversation.id,
@@ -127,10 +120,11 @@ export default function ChatWindow({ conversation, initialMessages, currentUserI
   }
 
   return (
-    <div className="flex flex-col h-[calc(100vh-4rem)]">
+    // Header is h-14 on mobile / h-16 on md+; bottom nav is hidden on this route
+    <div className="flex flex-col h-[calc(100dvh-3.5rem)] md:h-[calc(100dvh-4rem)]">
       {/* Header */}
-      <div className="flex items-center gap-3 px-4 py-3 border-b border-gray-200 bg-white">
-        <Link href="/messages" className="p-1.5 hover:bg-gray-100 rounded-full transition">
+      <div className="flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2.5 sm:py-3 border-b border-gray-200 bg-white flex-shrink-0">
+        <Link href="/messages" className="p-2 -ml-1 active:bg-gray-100 rounded-full transition" aria-label="Back to messages">
           <ChevronLeft className="w-5 h-5 text-gray-600" />
         </Link>
 
@@ -146,11 +140,10 @@ export default function ChatWindow({ conversation, initialMessages, currentUserI
           <p className="font-semibold text-gray-800 text-sm truncate">{otherUser?.username}</p>
         </div>
 
-        {/* Item preview */}
         {item && (
           <Link
             href={`/items/${item.id}`}
-            className="flex items-center gap-2 border border-gray-200 rounded-lg px-2 py-1.5 hover:bg-gray-50 transition max-w-[160px]"
+            className="flex items-center gap-2 border border-gray-200 rounded-lg px-2 py-1.5 active:bg-gray-50 transition max-w-[140px] sm:max-w-[160px]"
           >
             <div className="w-8 h-8 rounded-md overflow-hidden bg-gray-100 relative flex-shrink-0">
               {item.images?.[0] ? (
@@ -159,7 +152,7 @@ export default function ChatWindow({ conversation, initialMessages, currentUserI
                 <Package className="w-4 h-4 text-gray-300 m-auto" />
               )}
             </div>
-            <div className="min-w-0">
+            <div className="min-w-0 hidden sm:block">
               <p className="text-xs font-medium text-gray-700 truncate">{item.title}</p>
               <p className="text-xs text-amber-600 font-semibold">{formatPrice(item.price, item.currency)}</p>
             </div>
@@ -168,7 +161,7 @@ export default function ChatWindow({ conversation, initialMessages, currentUserI
       </div>
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto px-4 py-4 flex flex-col gap-2 bg-gray-50">
+      <div className="flex-1 overflow-y-auto overscroll-contain px-3 sm:px-4 py-4 flex flex-col gap-2 bg-gray-50">
         {messages.length === 0 && (
           <div className="flex flex-col items-center justify-center flex-1 text-center py-12">
             <p className="text-sm text-gray-400">Start the conversation!</p>
@@ -193,10 +186,10 @@ export default function ChatWindow({ conversation, initialMessages, currentUserI
                   ) : <div />}
                 </div>
               )}
-              <div className={cn('max-w-[70%] flex flex-col gap-1', isMe && 'items-end')}>
+              <div className={cn('max-w-[80%] sm:max-w-[70%] flex flex-col gap-1', isMe && 'items-end')}>
                 <div
                   className={cn(
-                    'px-3 py-2 rounded-2xl text-sm leading-relaxed',
+                    'px-3 py-2 rounded-2xl text-sm leading-relaxed break-words',
                     isMe
                       ? 'bg-amber-500 text-white rounded-br-sm'
                       : 'bg-white text-gray-800 border border-gray-200 rounded-bl-sm'
@@ -212,17 +205,18 @@ export default function ChatWindow({ conversation, initialMessages, currentUserI
         <div ref={bottomRef} />
       </div>
 
-      {/* Input */}
+      {/* Input — safe area for home indicator */}
       <form
         onSubmit={sendMessage}
-        className="flex items-center gap-2 px-4 py-3 border-t border-gray-200 bg-white"
+        className="flex items-center gap-2 px-3 sm:px-4 py-2.5 sm:py-3 border-t border-gray-200 bg-white flex-shrink-0 pb-safe"
       >
         <input
           type="text"
           value={input}
           onChange={(e) => setInput(e.target.value)}
           placeholder="Type a message..."
-          className="flex-1 bg-gray-100 rounded-full px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 focus:bg-white transition"
+          enterKeyHint="send"
+          className="flex-1 bg-gray-100 rounded-full px-4 py-2.5 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 focus:bg-white transition"
           onKeyDown={(e) => {
             if (e.key === 'Enter' && !e.shiftKey) {
               e.preventDefault()
@@ -233,7 +227,8 @@ export default function ChatWindow({ conversation, initialMessages, currentUserI
         <button
           type="submit"
           disabled={!input.trim() || sending}
-          className="w-10 h-10 bg-amber-500 hover:bg-amber-600 disabled:opacity-40 text-white rounded-full flex items-center justify-center transition flex-shrink-0"
+          aria-label="Send message"
+          className="w-11 h-11 bg-amber-500 active:bg-amber-700 disabled:opacity-40 text-white rounded-full flex items-center justify-center transition flex-shrink-0"
         >
           <Send className="w-4 h-4" />
         </button>

@@ -8,7 +8,6 @@ import { cn } from '@/lib/utils'
 import ItemDetailActions from '@/components/items/ItemDetailActions'
 import ImageGallery from '@/components/items/ImageGallery'
 import ReportButton from '@/components/items/ReportButton'
-import PriceDropButton from '@/components/items/PriceDropButton'
 import type { Metadata } from 'next'
 
 interface PageProps {
@@ -100,48 +99,50 @@ export default async function ItemDetailPage({ params }: PageProps) {
   const isOwner = user?.id === item.seller_id
 
   return (
-    <div className="max-w-5xl mx-auto px-3 sm:px-4 py-4 sm:py-6">
+    <div className="max-w-5xl mx-auto px-3 sm:px-4 py-3 sm:py-6">
       {/* Breadcrumb */}
-      <div className="flex items-center gap-2 text-sm text-gray-500 mb-4">
-        <Link href="/" className="flex items-center gap-1 hover:text-gray-700">
+      <div className="flex items-center gap-2 text-sm text-gray-500 mb-3 sm:mb-4">
+        <Link href="/" className="flex items-center gap-1 active:text-gray-700 py-1">
           <ChevronLeft className="w-4 h-4" /> Back
         </Link>
         {item.categories && (
           <>
-            <span>/</span>
-            <Link href={`/?category=${(item.categories as any).slug}`} className="hover:text-gray-700">
+            <span className="text-gray-300">/</span>
+            <Link href={`/?category=${(item.categories as any).slug}`} className="active:text-gray-700 truncate">
               {(item.categories as any).icon} {(item.categories as any).name}
             </Link>
           </>
         )}
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-8">
         {/* Images */}
-        <div className="relative">
-          <ImageGallery images={item.images || []} title={item.title} />
+        <div className="relative -mx-3 sm:mx-0">
+          <div className="sm:rounded-2xl overflow-hidden">
+            <ImageGallery images={item.images || []} title={item.title} />
+          </div>
           {item.status === 'sold' && (
-            <div className="absolute inset-0 bg-black/40 flex items-center justify-center rounded-2xl pointer-events-none">
+            <div className="absolute inset-0 bg-black/40 flex items-center justify-center sm:rounded-2xl pointer-events-none">
               <span className="bg-white font-bold text-xl px-6 py-2 rounded-full">SOLD</span>
             </div>
           )}
         </div>
 
         {/* Details */}
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-3 sm:gap-4">
           <div>
             <div className="flex items-start justify-between gap-3">
-              <h1 className="text-2xl font-bold text-gray-900 leading-tight">{item.title}</h1>
+              <h1 className="text-xl sm:text-2xl font-bold text-gray-900 leading-tight">{item.title}</h1>
               {isOwner && (
                 <Link
                   href={`/items/${item.id}/edit`}
-                  className="flex-shrink-0 flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700 border border-gray-300 rounded-lg px-3 py-1.5"
+                  className="flex-shrink-0 flex items-center gap-1 text-sm text-gray-500 active:text-gray-700 border border-gray-300 rounded-lg px-3 py-2"
                 >
                   <Edit className="w-4 h-4" /> Edit
                 </Link>
               )}
             </div>
-            <p className="text-3xl font-bold text-amber-600 mt-2">
+            <p className="text-2xl sm:text-3xl font-bold text-amber-600 mt-2">
               {formatPrice(item.price, item.currency)}
             </p>
           </div>
@@ -157,12 +158,14 @@ export default async function ItemDetailPage({ params }: PageProps) {
             )}
           </div>
 
-          <div className="flex items-center gap-1.5 text-sm text-gray-500">
-            <MapPin className="w-4 h-4" />
-            {item.location}
-            <span className="mx-2 text-gray-300">·</span>
+          <div className="flex flex-wrap items-center gap-x-1.5 gap-y-1 text-sm text-gray-500">
+            <span className="inline-flex items-center gap-1">
+              <MapPin className="w-4 h-4 flex-shrink-0" />
+              {item.location}
+            </span>
+            <span className="text-gray-300">·</span>
             <span>{formatRelativeTime(item.created_at)}</span>
-            <span className="mx-2 text-gray-300">·</span>
+            <span className="text-gray-300">·</span>
             <span>{item.views_count} views</span>
           </div>
 
@@ -177,7 +180,7 @@ export default async function ItemDetailPage({ params }: PageProps) {
           {seller && (
             <Link
               href={`/profile/${seller.id}`}
-              className="flex items-center gap-3 p-3 border border-gray-200 rounded-xl hover:bg-gray-50 transition"
+              className="flex items-center gap-3 p-3 border border-gray-200 rounded-xl active:bg-gray-50 transition"
             >
               <div className="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center flex-shrink-0 overflow-hidden">
                 {seller.avatar_url ? (
@@ -189,14 +192,14 @@ export default async function ItemDetailPage({ params }: PageProps) {
                 )}
               </div>
               <div className="flex-1 min-w-0">
-                <p className="font-medium text-gray-800 text-sm">{seller.username}</p>
+                <p className="font-medium text-gray-800 text-sm truncate">{seller.username}</p>
                 <div className="flex items-center gap-1 text-xs text-gray-500">
                   <Star className="w-3 h-3 fill-amber-400 text-amber-400" />
                   <span>{seller.rating?.toFixed(1) || '—'}</span>
                   <span>({seller.reviews_count} reviews)</span>
                 </div>
               </div>
-              <ChevronLeft className="w-4 h-4 text-gray-400 rotate-180" />
+              <ChevronLeft className="w-4 h-4 text-gray-400 rotate-180 flex-shrink-0" />
             </Link>
           )}
 
@@ -208,14 +211,6 @@ export default async function ItemDetailPage({ params }: PageProps) {
             isOwner={isOwner}
           />
 
-          {/* Owner tools */}
-          {isOwner && item.status === 'active' && (
-            <div className="hidden md:flex justify-end">
-              <PriceDropButton itemId={item.id} currentPrice={item.price} currency={item.currency} />
-            </div>
-          )}
-
-          {/* Report — only shown to non-owners */}
           {!isOwner && (
             <div className="hidden md:flex justify-end">
               <ReportButton itemId={item.id} currentUserId={user?.id} />

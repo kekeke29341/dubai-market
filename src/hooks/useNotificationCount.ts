@@ -7,7 +7,12 @@ export function useNotificationCount() {
   const [count, setCount] = useState(0)
 
   useEffect(() => {
-    const supabase = createClient()
+    let supabase: ReturnType<typeof createClient>
+    try {
+      supabase = createClient()
+    } catch {
+      return
+    }
     let userId: string | null = null
 
     const fetch = async () => {

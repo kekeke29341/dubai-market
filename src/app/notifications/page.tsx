@@ -37,9 +37,9 @@ export default async function NotificationsPage() {
 
   // Mark all as read in background (fire-and-forget via server action approach — done client-side)
   return (
-    <div className="max-w-2xl mx-auto px-4 py-6">
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-xl font-bold text-gray-900 flex items-center gap-2">
+    <div className="max-w-2xl mx-auto px-3 sm:px-4 py-4 sm:py-6">
+      <div className="flex items-center justify-between gap-3 mb-4 sm:mb-6">
+        <h1 className="text-lg sm:text-xl font-bold text-gray-900 flex items-center gap-2">
           <Bell className="w-5 h-5 text-gray-400" />
           Notifications
         </h1>

@@ -6,9 +6,9 @@ import { LogOut } from 'lucide-react'
 
 export default function AdminSignOutButton() {
   const router = useRouter()
-  const supabase = createClient()
 
   const handleSignOut = async () => {
+    const supabase = createClient()
     await supabase.auth.signOut()
     router.push('/')
     router.refresh()

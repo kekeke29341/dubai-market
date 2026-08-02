@@ -5,9 +5,13 @@ import { Toaster } from 'react-hot-toast'
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
 import BottomNav from '@/components/layout/BottomNav'
+import MainShell from '@/components/layout/MainShell'
 import ServiceWorkerRegistrar from '@/components/pwa/ServiceWorkerRegistrar'
 
 const inter = Inter({ subsets: ['latin'] })
+
+// Avoid static prerender of layout clients (Header/BottomNav) that need Supabase env.
+export const dynamic = 'force-dynamic'
 
 export const metadata: Metadata = {
   title: 'Dubai Market — Buy & Sell in Dubai',
@@ -33,6 +37,7 @@ export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
   maximumScale: 5,
+  viewportFit: 'cover',
   themeColor: [
     { media: '(prefers-color-scheme: light)', color: '#f59e0b' },
     { media: '(prefers-color-scheme: dark)', color: '#d97706' },
@@ -47,10 +52,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
-        <div className="min-h-screen flex flex-col">
+        <div className="min-h-dvh flex flex-col">
           <Header />
-          {/* pb-16 on mobile reserves space for bottom nav */}
-          <main className="flex-1 pb-16 md:pb-0">{children}</main>
+          <MainShell>{children}</MainShell>
           <Footer />
         </div>
         <BottomNav />

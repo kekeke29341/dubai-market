@@ -10,7 +10,7 @@ export default async function SellPage() {
   const { data: categories } = await supabase.from('categories').select('*').order('id')
 
   return (
-    <div className="max-w-xl mx-auto px-4 py-8">
+    <div className="max-w-xl mx-auto px-3 sm:px-4 py-4 sm:py-8">
       <h1 className="text-2xl font-bold text-gray-900 mb-6">List an item for sale</h1>
       <ItemForm categories={categories || []} mode="create" />
     </div>

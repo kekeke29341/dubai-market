@@ -10,7 +10,6 @@ import Button from '@/components/ui/Button'
 
 export default function SignupPage() {
   const router = useRouter()
-  const supabase = createClient()
 
   const [form, setForm] = useState({ email: '', password: '', username: '', full_name: '' })
   const [loading, setLoading] = useState(false)
@@ -22,6 +21,7 @@ export default function SignupPage() {
       return
     }
     setLoading(true)
+    const supabase = createClient()
     const { error } = await supabase.auth.signUp({
       email: form.email,
       password: form.password,

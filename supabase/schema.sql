@@ -35,6 +35,11 @@ create table public.categories (
   created_at timestamptz default now()
 );
 
+alter table public.categories enable row level security;
+
+create policy "Categories are viewable by everyone"
+  on public.categories for select using (true);
+
 insert into public.categories (name, slug, icon) values
   ('Electronics', 'electronics', '📱'),
   ('Fashion', 'fashion', '👗'),

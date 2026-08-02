@@ -1,8 +1,10 @@
 import { createClient } from '@/lib/supabase/server'
+import { hasSupabaseEnv } from '@/lib/supabase/env'
 import CategoryBar from '@/components/items/CategoryBar'
 import FilterBar from '@/components/items/FilterBar'
 import InfiniteItemGrid from '@/components/items/InfiniteItemGrid'
 import RecommendedItems from '@/components/items/RecommendedItems'
+import MissingEnvBanner from '@/components/setup/MissingEnvBanner'
 import Link from 'next/link'
 import { Tag } from 'lucide-react'
 
@@ -23,6 +25,10 @@ interface PageProps {
 export const revalidate = 0
 
 export default async function HomePage({ searchParams }: PageProps) {
+  if (!hasSupabaseEnv()) {
+    return <MissingEnvBanner />
+  }
+
   const supabase = createClient()
   const { data: { user } } = await supabase.auth.getUser()
 

@@ -11,18 +11,22 @@ import { useNotificationCount } from '@/hooks/useNotificationCount'
 
 export default function Header() {
   const router = useRouter()
-  const supabase = createClient()
   const [user, setUser] = useState<SupabaseUser | null>(null)
   const [searchQuery, setSearchQuery] = useState('')
   const unreadCount = useUnreadCount()
   const notifCount = useNotificationCount()
 
   useEffect(() => {
-    supabase.auth.getUser().then(({ data }) => setUser(data.user))
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_, session) => {
-      setUser(session?.user ?? null)
-    })
-    return () => subscription.unsubscribe()
+    try {
+      const supabase = createClient()
+      supabase.auth.getUser().then(({ data }) => setUser(data.user))
+      const { data: { subscription } } = supabase.auth.onAuthStateChange((_, session) => {
+        setUser(session?.user ?? null)
+      })
+      return () => subscription.unsubscribe()
+    } catch {
+      // Supabase env not configured yet (e.g. fresh Vercel deploy)
+    }
   }, [])
 
   const handleSearch = (e: React.FormEvent) => {
@@ -33,17 +37,18 @@ export default function Header() {
   }
 
   const handleSignOut = async () => {
+    const supabase = createClient()
     await supabase.auth.signOut()
     router.push('/')
     router.refresh()
   }
 
   return (
-    <header className="bg-white border-b border-gray-200 sticky top-0 z-50">
+    <header className="bg-white/95 backdrop-blur-sm border-b border-gray-200 sticky top-0 z-50 safe-top">
       <div className="max-w-7xl mx-auto px-3 sm:px-4">
-        <div className="flex items-center gap-3 h-14 md:h-16">
+        <div className="flex items-center gap-2 sm:gap-3 h-14 md:h-16">
           {/* Logo */}
-          <Link href="/" className="flex-shrink-0 flex items-center gap-2">
+          <Link href="/" className="flex-shrink-0 flex items-center gap-2" aria-label="Dubai Market home">
             <div className="w-8 h-8 bg-gradient-to-br from-amber-400 to-amber-600 rounded-lg flex items-center justify-center">
               <span className="text-white font-bold text-sm">D</span>
             </div>
@@ -53,15 +58,16 @@ export default function Header() {
           </Link>
 
           {/* Search — full width on mobile */}
-          <form onSubmit={handleSearch} className="flex-1">
+          <form onSubmit={handleSearch} className="flex-1 min-w-0">
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
               <input
                 type="search"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search items..."
-                className="w-full pl-9 pr-4 py-2 bg-gray-100 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 focus:bg-white transition"
+                enterKeyHint="search"
+                className="w-full pl-9 pr-3 py-2.5 bg-gray-100 rounded-full text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 focus:bg-white transition"
               />
             </div>
           </form>

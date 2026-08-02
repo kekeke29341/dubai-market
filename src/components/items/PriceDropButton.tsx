@@ -47,10 +47,11 @@ export default function PriceDropButton({ itemId, currentPrice, currency }: Pric
     <>
       <button
         onClick={() => setOpen(true)}
-        className="flex items-center gap-1.5 text-sm border border-amber-300 text-amber-600 hover:bg-amber-50 rounded-lg px-3 py-1.5 transition"
+        className="flex items-center justify-center gap-1.5 text-sm border border-amber-300 text-amber-600 active:bg-amber-50 rounded-xl px-3 py-2.5 transition flex-shrink-0"
       >
         <TrendingDown className="w-4 h-4" />
-        Drop price
+        <span className="sm:hidden">Drop</span>
+        <span className="hidden sm:inline">Drop price</span>
       </button>
 
       {open && (

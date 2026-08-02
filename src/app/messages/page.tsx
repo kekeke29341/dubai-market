@@ -24,8 +24,8 @@ export default async function MessagesPage() {
     .order('last_message_at', { ascending: false })
 
   return (
-    <div className="max-w-2xl mx-auto px-4 py-8">
-      <h1 className="text-2xl font-bold text-gray-900 mb-6">Messages</h1>
+    <div className="max-w-2xl mx-auto px-3 sm:px-4 py-4 sm:py-8">
+      <h1 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4 sm:mb-6">Messages</h1>
 
       {!conversations || conversations.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-24 text-center">
@@ -45,7 +45,7 @@ export default async function MessagesPage() {
               <Link
                 key={conv.id}
                 href={`/messages/${conv.id}`}
-                className="flex items-center gap-3 py-4 hover:bg-gray-50 -mx-4 px-4 rounded-xl transition"
+                className="flex items-center gap-3 py-3.5 active:bg-gray-50 -mx-3 sm:-mx-4 px-3 sm:px-4 rounded-xl transition"
               >
                 {/* Item thumbnail */}
                 <div className="w-12 h-12 flex-shrink-0 rounded-lg overflow-hidden bg-gray-100 relative">

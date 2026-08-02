@@ -10,7 +10,6 @@ import { Eye, EyeOff } from 'lucide-react'
 
 export default function ResetPasswordPage() {
   const router = useRouter()
-  const supabase = createClient()
   const [password, setPassword] = useState('')
   const [confirm, setConfirm] = useState('')
   const [loading, setLoading] = useState(false)
@@ -19,10 +18,12 @@ export default function ResetPasswordPage() {
 
   // Supabase sets the session from the URL hash after the user clicks the link
   useEffect(() => {
-    supabase.auth.onAuthStateChange((event) => {
+    const supabase = createClient()
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
       if (event === 'PASSWORD_RECOVERY') setReady(true)
     })
-  }, [supabase.auth])
+    return () => subscription.unsubscribe()
+  }, [])
 
   const strength = (pwd: string) => {
     let score = 0
@@ -47,6 +48,7 @@ export default function ResetPasswordPage() {
       return
     }
     setLoading(true)
+    const supabase = createClient()
     const { error } = await supabase.auth.updateUser({ password })
     if (error) {
       toast.error(error.message)
