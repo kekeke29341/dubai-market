@@ -30,22 +30,23 @@
 - [x] アイコン・スプラッシュ・Bundle ID `com.dubaimarket.app`
 - [x] カメラ / 写真ライブラリ利用目的文
 - [x] Privacy Manifest / 非免除暗号フラグ
-- [x] `/privacy` `/terms` `/support`
+- [x] `/privacy` `/terms` `/support`（**本番デプロイ済み**）
 - [x] 設定画面からの **アカウント削除**（Guideline 5.1.1）
 - [x] ネイティブ共有シート（Web ↔ RN ブリッジ）
 - [x] アプリ内では Service Worker を登録しない
+- [x] AASA エンドポイント本番公開（Team ID はプレースホルダ）
+- [x] 審査用デモアカウント作成（`appstore.reviewer@dubai-market.test`）
 
-### あなたが埋める項目
+### あなたが埋める項目（Apple / Expo アカウント必須）
 
-- [ ] Apple Developer 加入
-- [ ] `npx eas-cli login` → `npx eas-cli init`（`app.json` の `projectId`）
+- [ ] Apple Developer Program 加入（年 $99）
+- [ ] Expo アカウント作成 → `cd mobile && npx eas-cli login` → `npx eas-cli init`
 - [ ] Certificates で Bundle ID `com.dubaimarket.app` 登録
 - [ ] App Store Connect でアプリ作成 → `eas.json` の `ascAppId` / `appleTeamId`
-- [ ] AASA の `REPLACE_TEAM_ID` を実 Team ID に更新（`src/app/.well-known/apple-app-site-association/route.ts`）
-- [ ] サポート用メールを実アドレスに差し替え
-- [ ] スクリーンショット作成
-- [ ] 審査用デモアカウント作成
-- [ ] production ビルド → Submit → 審査提出
+- [ ] AASA の `REPLACE_TEAM_ID` を実 Team ID に更新して再デプロイ
+- [ ] サポート用メールを実アドレスに差し替え（現在 `support@dubaimarket.app` は仮）
+- [ ] スクリーンショット作成（TestFlight / preview ビルド推奨）
+- [ ] `npm run build:ios` → `npm run submit:ios` → 審査提出
 
 ---
 

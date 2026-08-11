@@ -43,8 +43,8 @@ First release of Dubai Market for iPhone.
 
 ```
 Demo account:
-Email: <REVIEWER_EMAIL>
-Password: <REVIEWER_PASSWORD>
+Email: appstore.reviewer@dubai-market.test
+Password: ReviewPass2026!
 
 How to test:
 1. Open the app (loads production marketplace).
