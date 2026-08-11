@@ -7,6 +7,7 @@ import Footer from '@/components/layout/Footer'
 import BottomNav from '@/components/layout/BottomNav'
 import MainShell from '@/components/layout/MainShell'
 import ServiceWorkerRegistrar from '@/components/pwa/ServiceWorkerRegistrar'
+import NativeAppBootstrap from '@/components/native/NativeAppBootstrap'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -58,6 +59,7 @@ export default function RootLayout({
           <Footer />
         </div>
         <BottomNav />
+        <NativeAppBootstrap />
         <ServiceWorkerRegistrar />
         <Toaster
           position="top-center"

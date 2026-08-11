@@ -12,6 +12,7 @@ import BuyNowButton from '@/components/items/BuyNowButton'
 import MakeOfferButton from '@/components/items/MakeOfferButton'
 import PriceDropButton from '@/components/items/PriceDropButton'
 import toast from 'react-hot-toast'
+import { shareContent } from '@/lib/nativeApp'
 
 interface ItemDetailActionsProps {
   item: Item
@@ -106,12 +107,16 @@ export default function ItemDetailActions({
     setStatusLoading(false)
   }
 
-  const handleShare = () => {
-    if (navigator.share) {
-      navigator.share({ title: item.title, url: window.location.href })
-    } else {
-      navigator.clipboard.writeText(window.location.href)
-      toast.success('Link copied!')
+  const handleShare = async () => {
+    try {
+      const result = await shareContent({
+        title: item.title,
+        url: window.location.href,
+        text: `Check out ${item.title} on Dubai Market`,
+      })
+      if (result === 'clipboard') toast.success('Link copied!')
+    } catch {
+      // User cancelled share sheet — ignore
     }
   }
 

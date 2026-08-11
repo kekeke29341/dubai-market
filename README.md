@@ -80,6 +80,24 @@ Follow the prompts and add environment variables when asked.
 
 ---
 
+## iOS App (App Store)
+
+Native iOS shell lives in [`mobile/`](./mobile/). It wraps the production site with Expo + EAS.
+
+See **[mobile/APP_STORE.md](./mobile/APP_STORE.md)** for Apple Developer setup, EAS Build, and App Store Connect submission steps.  
+Listing copy: **[mobile/STORE_LISTING.md](./mobile/STORE_LISTING.md)**.
+
+```bash
+cd mobile
+npm install
+npm start                 # Expo Go / simulator
+npm run build:ios:preview # internal device build (screenshots)
+npm run build:ios         # App Store production build
+npm run submit:ios        # upload to App Store Connect
+```
+
+---
+
 ## Admin Panel
 
 The admin panel is available at `/admin`. Access requires `is_admin = true` on the user's profile.

@@ -14,6 +14,7 @@ export interface ItemRow {
   condition: string
   status: string
   location: string
+  views_count: number
   favorites_count: number
   created_at: string
   profiles: { id: string; username: string; avatar_url: string | null; rating: number | null } | null
@@ -56,7 +57,7 @@ export function useInfiniteItems(opts: UseInfiniteItemsOptions) {
 
       let query = supabase
         .from('items')
-        .select('id, title, price, currency, images, condition, status, location, favorites_count, created_at, profiles!seller_id(id, username, avatar_url, rating)')
+        .select('id, title, price, currency, images, condition, status, location, views_count, favorites_count, created_at, profiles!seller_id(id, username, avatar_url, rating)')
         .eq('status', 'active')
 
       if (currentOpts.q) {
@@ -88,6 +89,7 @@ export function useInfiniteItems(opts: UseInfiniteItemsOptions) {
       else if (sort === 'price_asc') query = query.order('price', { ascending: true })
       else if (sort === 'price_desc') query = query.order('price', { ascending: false })
       else if (sort === 'popular') query = query.order('favorites_count', { ascending: false })
+      else if (sort === 'most_viewed') query = query.order('views_count', { ascending: false })
 
       const { data, error: queryError } = await query.range(offset, offset + PAGE_SIZE - 1)
       if (queryError) throw queryError

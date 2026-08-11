@@ -4,7 +4,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { formatPrice, formatRelativeTime, CONDITION_COLORS, CONDITION_LABELS, getInitials } from '@/lib/utils'
 import { cn } from '@/lib/utils'
-import { Star, MapPin, Package } from 'lucide-react'
+import { Star, MapPin, Package, Users } from 'lucide-react'
 import type { Metadata } from 'next'
 import MessageSellerButton from '@/components/profile/MessageSellerButton'
 import FollowButton from '@/components/profile/FollowButton'
@@ -121,6 +121,14 @@ export default async function ProfilePage({ params }: PageProps) {
               <Package className="w-4 h-4" />
               <span>{soldItems?.length || 0} sold</span>
             </div>
+          </div>
+
+          {/* Followers / Following counts */}
+          <div className="flex items-center gap-4 mt-2 text-sm">
+            <span className="text-gray-800 font-semibold">{(profile as any).followers_count ?? 0}</span>
+            <span className="text-gray-500 -ml-3">followers</span>
+            <span className="text-gray-800 font-semibold">{(profile as any).following_count ?? 0}</span>
+            <span className="text-gray-500 -ml-3">following</span>
           </div>
 
           {profile.bio && (

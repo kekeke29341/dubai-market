@@ -1,12 +1,8 @@
 -- ============================================================
--- 1. Draft support on items (status = 'draft' already possible
---    if the CHECK constraint allows it — add it if needed)
+-- 1. Draft support on items
 -- ============================================================
--- Assuming items.status CHECK is: active | reserved | sold | deleted
--- We add 'draft' to the allowed values.
-ALTER TABLE items DROP CONSTRAINT IF EXISTS items_status_check;
-ALTER TABLE items ADD CONSTRAINT items_status_check
-  CHECK (status IN ('active', 'reserved', 'sold', 'deleted', 'draft'));
+-- status is item_status ENUM ('active','sold','reserved','deleted')
+ALTER TYPE item_status ADD VALUE IF NOT EXISTS 'draft';
 
 -- ============================================================
 -- 2. Price drop tracking

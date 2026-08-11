@@ -50,3 +50,8 @@
     -webkit-tap-highlight-color: transparent;
   }
 }
+
+.dubai-market-native-app body {
+  /* WebView already sits under the status bar; keep tap targets stable. */
+  overscroll-behavior-y: none;
+}

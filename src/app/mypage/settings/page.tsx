@@ -11,6 +11,8 @@ import { getInitials } from '@/lib/utils'
 import Link from 'next/link'
 import Image from 'next/image'
 import PushSubscribeButton from '@/components/pwa/PushSubscribeButton'
+import DeleteAccountButton from '@/components/settings/DeleteAccountButton'
+import { isNativeAppClient } from '@/lib/nativeApp'
 
 export default function SettingsPage() {
   const router = useRouter()
@@ -28,7 +30,12 @@ export default function SettingsPage() {
   const [pwdForm, setPwdForm] = useState({ newPwd: '', confirm: '' })
   const [showPwd, setShowPwd] = useState(false)
   const [pwdLoading, setPwdLoading] = useState(false)
+  const [isNativeApp, setIsNativeApp] = useState(false)
   const fileRef = useRef<HTMLInputElement>(null)
+
+  useEffect(() => {
+    setIsNativeApp(isNativeAppClient())
+  }, [])
 
   useEffect(() => {
     supabase.auth.getUser().then(async ({ data: { user } }) => {
@@ -201,13 +208,28 @@ export default function SettingsPage() {
         </Button>
       </form>
 
-      {/* Push notifications */}
+      {/* Push notifications (browser / PWA only — WKWebView has no Web Push) */}
+      {!isNativeApp && (
+        <div className="mt-10 pt-8 border-t border-gray-200">
+          <h2 className="text-base font-bold text-gray-800 mb-1">Push notifications</h2>
+          <p className="text-sm text-gray-500 mb-4">
+            Get notified about price drops, new listings from sellers you follow, and messages.
+          </p>
+          <PushSubscribeButton />
+        </div>
+      )}
+
+      {/* Legal */}
       <div className="mt-10 pt-8 border-t border-gray-200">
-        <h2 className="text-base font-bold text-gray-800 mb-1">Push notifications</h2>
-        <p className="text-sm text-gray-500 mb-4">
-          Get notified about price drops, new listings from sellers you follow, and messages.
-        </p>
-        <PushSubscribeButton />
+        <h2 className="text-base font-bold text-gray-800 mb-3">Legal &amp; support</h2>
+        <div className="flex flex-col gap-2 text-sm">
+          <Link href="/privacy" className="text-amber-600 hover:underline">Privacy Policy</Link>
+          <Link href="/terms" className="text-amber-600 hover:underline">Terms of Service</Link>
+          <Link href="/support" className="text-amber-600 hover:underline">Support</Link>
+          <a href="mailto:support@dubaimarket.app" className="text-amber-600 hover:underline">
+            Contact support
+          </a>
+        </div>
       </div>
 
       {/* Password change */}
@@ -246,6 +268,15 @@ export default function SettingsPage() {
             Update password
           </Button>
         </form>
+      </div>
+
+      {/* Account deletion — App Store Guideline 5.1.1(v) */}
+      <div className="mt-10 pt-8 border-t border-gray-200 pb-10">
+        <h2 className="text-base font-bold text-gray-800 mb-1">Danger zone</h2>
+        <p className="text-sm text-gray-500 mb-4">
+          Permanently delete your Dubai Market account and associated data.
+        </p>
+        <DeleteAccountButton />
       </div>
     </div>
   )

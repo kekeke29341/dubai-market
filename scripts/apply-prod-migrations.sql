@@ -120,9 +120,8 @@ END;
 $$;
 
 -- ---------- drafts / price drop ----------
-ALTER TABLE items DROP CONSTRAINT IF EXISTS items_status_check;
-ALTER TABLE items ADD CONSTRAINT items_status_check
-  CHECK (status IN ('active', 'reserved', 'sold', 'deleted', 'draft'));
+-- status is the item_status ENUM (not a text CHECK) — add draft to the enum
+ALTER TYPE item_status ADD VALUE IF NOT EXISTS 'draft';
 
 ALTER TABLE items ADD COLUMN IF NOT EXISTS original_price numeric;
 ALTER TABLE items ADD COLUMN IF NOT EXISTS price_dropped_at timestamptz;

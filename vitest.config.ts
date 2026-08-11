@@ -7,7 +7,7 @@ export default defineConfig({
   test: {
     environment: 'jsdom',
     globals: true,
-    setupFiles: ['./src/__tests__/setup.ts'],
+    setupFiles: ['./src/__tests__/setup.tsx'],
     include: ['src/__tests__/**/*.{test,spec}.{ts,tsx}'],
     // API route tests use next/server (NextRequest) which needs node-compatible globals
     environmentMatchGlobs: [
@@ -24,6 +24,8 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
+      // Allow importing Expo mobile helpers from web vitest without RN packages
+      'react-native': path.resolve(__dirname, './src/__tests__/mocks/react-native.ts'),
     },
   },
 })

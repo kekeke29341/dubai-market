@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Home, Search, Plus, Bell, User } from 'lucide-react'
+import { Home, Search, Plus, Bell, User, Trophy } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { cn } from '@/lib/utils'
@@ -54,12 +54,12 @@ export default function BottomNav() {
         {navItem('/', Home, 'Home')}
         {navItem('/search', Search, 'Search')}
 
-        {/* Sell CTA — center pill */}
-        <Link href="/sell" className="flex flex-col items-center gap-0.5 flex-1 min-w-0 py-1">
-          <div className="w-12 h-12 bg-amber-500 active:bg-amber-700 rounded-full flex items-center justify-center shadow-lg transition-colors -mt-4">
-            <Plus className="w-6 h-6 text-white" strokeWidth={2.5} />
+        {/* Ranking — center pill */}
+        <Link href="/ranking" className="flex flex-col items-center gap-0.5 flex-1 min-w-0 py-1">
+          <div className={`w-12 h-12 rounded-full flex items-center justify-center shadow-lg transition-colors -mt-4 ${isActive('/ranking') ? 'bg-amber-600' : 'bg-amber-500 active:bg-amber-700'}`}>
+            <Trophy className="w-6 h-6 text-white" strokeWidth={2} />
           </div>
-          <span className="text-[10px] font-medium text-amber-500">Sell</span>
+          <span className={`text-[10px] font-medium ${isActive('/ranking') ? 'text-amber-600' : 'text-amber-500'}`}>Ranking</span>
         </Link>
 
         {/* Notifications with badge */}

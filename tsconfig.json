@@ -19,5 +19,5 @@
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
-  "exclude": ["node_modules", "supabase", "vitest.config.ts"]
+  "exclude": ["node_modules", "supabase", "vitest.config.ts", "mobile", "src/__tests__"]
 }

@@ -29,9 +29,33 @@ describe('ServiceWorkerRegistrar', () => {
       configurable: true,
       writable: true,
     })
+    Object.defineProperty(navigator, 'userAgent', {
+      value: 'Mozilla/5.0',
+      configurable: true,
+    })
+    // Ensure we are not treated as the native shell
+    // @ts-expect-error test cleanup
+    delete window.__DUBAI_MARKET_NATIVE__
+    delete (window as any).ReactNativeWebView
 
     render(<ServiceWorkerRegistrar />)
     expect(mockRegister).toHaveBeenCalledWith('/sw.js', { scope: '/' })
+  })
+
+  it('skips registration inside the native Expo shell', () => {
+    const mockRegister = vi.fn().mockResolvedValue({})
+    Object.defineProperty(navigator, 'serviceWorker', {
+      value: { register: mockRegister },
+      configurable: true,
+      writable: true,
+    })
+    Object.defineProperty(navigator, 'userAgent', {
+      value: 'Mozilla/5.0 DubaiMarketApp/1.0',
+      configurable: true,
+    })
+
+    render(<ServiceWorkerRegistrar />)
+    expect(mockRegister).not.toHaveBeenCalled()
   })
 
   it('does not throw when serviceWorker is not in navigator', () => {

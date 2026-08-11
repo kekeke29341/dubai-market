@@ -8,6 +8,7 @@ const TABS = [
   { value: 'sold', label: 'Sold' },
   { value: 'drafts', label: 'Drafts' },
   { value: 'favorites', label: 'Favorites' },
+  { value: 'stats', label: 'Stats', href: '/mypage/stats' },
 ]
 
 export default function MyPageTabs({ currentTab }: { currentTab: string }) {
@@ -16,7 +17,7 @@ export default function MyPageTabs({ currentTab }: { currentTab: string }) {
       {TABS.map((tab) => (
         <Link
           key={tab.value}
-          href={`/mypage?tab=${tab.value}`}
+          href={tab.href ?? `/mypage?tab=${tab.value}`}
           className={cn(
             'flex-shrink-0 px-3.5 sm:px-4 py-3 text-sm font-medium border-b-2 transition whitespace-nowrap',
             currentTab === tab.value

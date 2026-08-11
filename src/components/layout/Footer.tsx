@@ -20,6 +20,9 @@ export default function Footer() {
             <Link href="/" className="hover:text-gray-700">Browse</Link>
             <Link href="/sell" className="hover:text-gray-700">Sell</Link>
             <Link href="/auth/login" className="hover:text-gray-700">Login</Link>
+            <Link href="/privacy" className="hover:text-gray-700">Privacy</Link>
+            <Link href="/terms" className="hover:text-gray-700">Terms</Link>
+            <Link href="/support" className="hover:text-gray-700">Support</Link>
           </div>
         </div>
       </div>

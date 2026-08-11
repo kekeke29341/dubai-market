@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import Image from 'next/image'
-import { Heart, MapPin } from 'lucide-react'
+import { Heart, MapPin, Eye } from 'lucide-react'
 import { Item } from '@/types'
 import { formatPrice, formatRelativeTime, CONDITION_LABELS, CONDITION_COLORS } from '@/lib/utils'
 import { cn } from '@/lib/utils'
@@ -11,7 +11,7 @@ import { createClient } from '@/lib/supabase/client'
 import toast from 'react-hot-toast'
 
 interface ItemCardProps {
-  item: Item
+  item: Item & { views_count?: number }
   isFavorited?: boolean
   currentUserId?: string
 }
@@ -115,7 +115,15 @@ export default function ItemCard({ item, isFavorited = false, currentUserId }: I
               <span className="truncate max-w-[60px] sm:max-w-[80px]">{item.location}</span>
             </div>
           </div>
-          <p className="text-[10px] sm:text-xs text-gray-400 mt-1">{formatRelativeTime(item.created_at)}</p>
+          <div className="flex items-center justify-between mt-1">
+            <p className="text-[10px] sm:text-xs text-gray-400">{formatRelativeTime(item.created_at)}</p>
+            {item.views_count != null && item.views_count > 0 && (
+              <div className="flex items-center gap-0.5 text-[10px] sm:text-xs text-gray-400">
+                <Eye className="w-3 h-3 flex-shrink-0" />
+                <span>{item.views_count >= 1000 ? `${(item.views_count / 1000).toFixed(1)}k` : item.views_count}</span>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </Link>

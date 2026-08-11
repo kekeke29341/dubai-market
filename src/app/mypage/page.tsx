@@ -3,7 +3,7 @@ import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
 import { formatRelativeTime, getInitials } from '@/lib/utils'
-import { Settings, Plus, Heart, Package, Star, Clock } from 'lucide-react'
+import { Settings, Plus, Heart, Package, Star, Clock, TrendingUp } from 'lucide-react'
 import MyPageTabs from '@/components/layout/MyPageTabs'
 import MyPageItemGrid from '@/components/mypage/MyPageItemGrid'
 
@@ -22,7 +22,7 @@ export default async function MyPage({ searchParams }: PageProps) {
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('*')
+    .select('*, points_balance, total_points_earned')
     .eq('id', user.id)
     .single()
 
@@ -87,6 +87,12 @@ export default async function MyPage({ searchParams }: PageProps) {
                 <span className="text-gray-300">·</span>
                 <span className="text-xs sm:text-sm">Joined {profile?.created_at ? formatRelativeTime(profile.created_at) : '—'}</span>
               </div>
+              {(profile as any)?.points_balance != null && (
+                <Link href="/mypage/stats" className="inline-flex items-center gap-1.5 mt-2 px-3 py-1 bg-amber-50 border border-amber-200 rounded-full text-sm font-semibold text-amber-700 hover:bg-amber-100 transition">
+                  <TrendingUp className="w-3.5 h-3.5" />
+                  {((profile as any).points_balance as number).toLocaleString()} pts
+                </Link>
+              )}
             </div>
             <div className="flex gap-1.5 sm:gap-2 flex-shrink-0">
               <Link
@@ -95,6 +101,14 @@ export default async function MyPage({ searchParams }: PageProps) {
               >
                 <Plus className="w-4 h-4" />
                 Sell
+              </Link>
+              <Link
+                href="/mypage/stats"
+                aria-label="My stats"
+                className="p-2.5 border border-gray-300 rounded-full active:bg-gray-50 transition"
+                title="My stats"
+              >
+                <TrendingUp className="w-4 h-4 text-gray-600" />
               </Link>
               <Link
                 href="/mypage/history"

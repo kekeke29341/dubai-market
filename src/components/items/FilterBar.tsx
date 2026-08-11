@@ -18,6 +18,7 @@ const SORTS = [
   { value: 'price_asc', label: 'Price: Low → High' },
   { value: 'price_desc', label: 'Price: High → Low' },
   { value: 'popular', label: 'Most liked' },
+  { value: 'most_viewed', label: 'Most viewed' },
 ]
 
 export default function FilterBar() {

@@ -92,16 +92,15 @@ describe('ItemCard', () => {
     it('shows unfilled heart when not favorited', () => {
       render(<ItemCard item={baseItem} isFavorited={false} currentUserId="user-1" />)
       const btn = screen.getByRole('button')
-      // Heart icon should not have fill-red-500 class
       const heart = btn.querySelector('svg')
-      expect(heart?.className).not.toContain('fill-red-500')
+      expect(heart?.classList.contains('fill-red-500')).toBe(false)
     })
 
     it('shows filled heart when favorited', () => {
       render(<ItemCard item={baseItem} isFavorited={true} currentUserId="user-1" />)
       const btn = screen.getByRole('button')
       const heart = btn.querySelector('svg')
-      expect(heart?.className).toContain('fill-red-500')
+      expect(heart?.classList.contains('fill-red-500')).toBe(true)
     })
 
     it('shows error toast when not logged in', async () => {
@@ -133,7 +132,7 @@ describe('ItemCard', () => {
       await userEvent.click(btn)
       const heart = btn.querySelector('svg')
       await waitFor(() => {
-        expect(heart?.className).toContain('fill-red-500')
+        expect(heart?.classList.contains('fill-red-500')).toBe(true)
       })
     })
 
