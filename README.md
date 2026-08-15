@@ -15,7 +15,7 @@ A Mercari-style marketplace app for buying and selling items in Dubai, built wit
 
 ## Tech Stack
 
-- **Frontend**: Next.js 14 (App Router), TypeScript, Tailwind CSS
+- **Frontend**: Next.js 14.2.35 (App Router), TypeScript, Tailwind CSS
 - **Backend**: Supabase (PostgreSQL + Auth + Storage + Realtime)
 - **Deploy**: Vercel
 

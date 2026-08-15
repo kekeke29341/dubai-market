@@ -44,17 +44,25 @@ export default function ItemForm({ categories, initialData, mode = 'create' }: I
   const [prohibitedWords, setProhibitedWords] = useState<string[]>([])
 
   useEffect(() => {
-    const client = createClient()
-    client
-      .from('prohibited_words')
-      .select('word')
-      .eq('active', true)
-      .then(({ data }) => {
-        if (data?.length) setProhibitedWords(data.map((row) => row.word))
-      })
-      .catch(() => {
+    let cancelled = false
+    const loadWords = async () => {
+      try {
+        const client = createClient()
+        const { data } = await client
+          .from('prohibited_words')
+          .select('word')
+          .eq('active', true)
+        if (!cancelled && data?.length) {
+          setProhibitedWords(data.map((row) => row.word))
+        }
+      } catch {
         // Table may not exist until the migration is applied.
-      })
+      }
+    }
+    void loadWords()
+    return () => {
+      cancelled = true
+    }
   }, [])
 
   const onDrop = useCallback(async (acceptedFiles: File[]) => {

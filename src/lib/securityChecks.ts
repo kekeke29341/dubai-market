@@ -17,9 +17,30 @@ export function getNextVersion(): string | null {
   }
 }
 
-/** Versions called out by the 2025-12-11 Next.js advisory that this app may still pin. */
+function parseSemver(version: string): [number, number, number] | null {
+  const match = version.trim().match(/^(\d+)\.(\d+)\.(\d+)/)
+  if (!match) return null
+  return [Number(match[1]), Number(match[2]), Number(match[3])]
+}
+
+function isBelow(version: string, minimum: string): boolean {
+  const current = parseSemver(version)
+  const min = parseSemver(minimum)
+  if (!current || !min) return false
+  for (let i = 0; i < 3; i += 1) {
+    if (current[i] < min[i]) return true
+    if (current[i] > min[i]) return false
+  }
+  return false
+}
+
+/** 14.x below 14.2.35 is affected by the 2025-12-11 RSC advisories (CVE-2025-55184 / 67779). */
 export function isVulnerableNextVersion(version: string): boolean {
-  return version === '14.2.5'
+  const parsed = parseSemver(version)
+  if (!parsed) return false
+  if (parsed[0] < 14) return true
+  if (parsed[0] === 14) return isBelow(version, '14.2.35')
+  return false
 }
 
 interface DbGuardStatus {

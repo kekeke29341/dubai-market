@@ -126,8 +126,10 @@ describe('runSecurityChecks', () => {
 })
 
 describe('isVulnerableNextVersion', () => {
-  it('flags the pinned 14.2.5 advisory', () => {
+  it('flags 14.x below the 14.2.35 RSC patch', () => {
     expect(isVulnerableNextVersion('14.2.5')).toBe(true)
+    expect(isVulnerableNextVersion('14.2.34')).toBe(true)
     expect(isVulnerableNextVersion('14.2.35')).toBe(false)
+    expect(isVulnerableNextVersion('15.0.0')).toBe(false)
   })
 })
