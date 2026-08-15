@@ -1,3 +1,14 @@
+function supabaseImageHostname() {
+  const raw = process.env.NEXT_PUBLIC_SUPABASE_URL
+  if (!raw) return '*.supabase.co'
+  try {
+    const { hostname } = new URL(raw)
+    return hostname.endsWith('.supabase.co') ? hostname : '*.supabase.co'
+  } catch {
+    return '*.supabase.co'
+  }
+}
+
 const securityHeaders = [
   { key: 'X-Frame-Options', value: 'DENY' },
   { key: 'X-Content-Type-Options', value: 'nosniff' },
@@ -12,7 +23,7 @@ const nextConfig = {
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: '*.supabase.co',
+        hostname: supabaseImageHostname(),
         pathname: '/storage/v1/object/public/**',
       },
     ],

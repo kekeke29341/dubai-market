@@ -9,7 +9,7 @@ import Input from '@/components/ui/Input'
 import Button from '@/components/ui/Button'
 import toast from 'react-hot-toast'
 import { Upload, X } from 'lucide-react'
-import { findProhibitedMatches } from '@/lib/security'
+import { findProhibitedMatches, imageUploadError, safeImageExtension } from '@/lib/security'
 import Image from 'next/image'
 
 interface ItemFormProps {
@@ -70,10 +70,16 @@ export default function ItemForm({ categories, initialData, mode = 'create' }: I
     if (!user) return
 
     for (const file of acceptedFiles.slice(0, 8 - images.length - uploadingImages.length)) {
+      const uploadError = imageUploadError(file)
+      if (uploadError) {
+        toast.error(uploadError)
+        continue
+      }
+
       const previewUrl = URL.createObjectURL(file)
       setUploadingImages((prev) => [...prev, previewUrl])
 
-      const ext = file.name.split('.').pop()
+      const ext = safeImageExtension(file)
       const path = `${user.id}/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`
 
       const { data, error } = await supabase.storage
@@ -92,7 +98,7 @@ export default function ItemForm({ categories, initialData, mode = 'create' }: I
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
-    accept: { 'image/*': [] },
+    accept: { 'image/jpeg': [], 'image/png': [], 'image/webp': [], 'image/gif': [] },
     maxFiles: 8,
     disabled: images.length >= 8,
   })

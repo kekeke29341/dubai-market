@@ -1,13 +1,18 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
+import { isSameOriginRequest } from '@/lib/security'
 
 /**
  * Permanently delete the authenticated user's account.
  * Required for App Store Guideline 5.1.1(v) — apps that support account creation
  * must also offer account deletion.
  */
-export async function POST() {
+export async function POST(req: NextRequest) {
+  if (!isSameOriginRequest(req)) {
+    return NextResponse.json({ error: 'Forbidden origin' }, { status: 403 })
+  }
+
   const supabase = createClient()
   const {
     data: { user },

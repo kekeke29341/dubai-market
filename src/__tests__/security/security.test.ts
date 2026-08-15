@@ -9,6 +9,9 @@ import {
   scoreChecks,
   summarizeChecks,
   passwordPolicyError,
+  usernamePolicyError,
+  imageUploadError,
+  safeImageExtension,
   isSameOriginRequest,
   MIN_PASSWORD_LENGTH,
   type SecurityCheck,
@@ -137,6 +140,31 @@ describe('password policy', () => {
     expect(MIN_PASSWORD_LENGTH).toBeGreaterThanOrEqual(8)
     expect(passwordPolicyError('short')).toBe('Password must be at least 8 characters')
     expect(passwordPolicyError('longenough')).toBeNull()
+  })
+})
+
+describe('username policy', () => {
+  it('accepts a simple handle and rejects spaces or symbols', () => {
+    expect(usernamePolicyError('alice_1')).toBeNull()
+    expect(usernamePolicyError('ab')).toBe('Username: 3–30 chars, letters/numbers/underscore only')
+    expect(usernamePolicyError('bad name')).not.toBeNull()
+  })
+})
+
+describe('image upload policy', () => {
+  it('rejects SVG and oversized files', () => {
+    expect(imageUploadError({ type: 'image/svg+xml', size: 100, name: 'x.svg' })).toBe(
+      'Use a JPEG, PNG, WebP, or GIF image',
+    )
+    expect(imageUploadError({ type: 'image/jpeg', size: 6 * 1024 * 1024, name: 'x.jpg' })).toBe(
+      'Image must be smaller than 5 MB',
+    )
+    expect(imageUploadError({ type: 'image/jpeg', size: 100, name: 'x.jpg' })).toBeNull()
+  })
+
+  it('normalizes a safe extension', () => {
+    expect(safeImageExtension({ type: 'image/jpeg', name: 'photo.jpeg' })).toBe('jpg')
+    expect(safeImageExtension({ type: 'image/png', name: 'evil.php' })).toBe('png')
   })
 })
 

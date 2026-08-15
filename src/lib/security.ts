@@ -11,6 +11,49 @@ export function passwordPolicyError(password: string): string | null {
   return null
 }
 
+export const USERNAME_PATTERN = /^[a-zA-Z0-9_]{3,30}$/
+
+export function usernamePolicyError(username: string): string | null {
+  if (!USERNAME_PATTERN.test(username.trim())) {
+    return 'Username: 3–30 chars, letters/numbers/underscore only'
+  }
+  return null
+}
+
+export const MAX_IMAGE_BYTES = 5 * 1024 * 1024
+export const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'] as const
+export const ALLOWED_IMAGE_EXTENSIONS = ['jpg', 'jpeg', 'png', 'webp', 'gif'] as const
+
+export function imageUploadError(file: { type: string; size: number; name?: string }): string | null {
+  if (file.size > MAX_IMAGE_BYTES) return 'Image must be smaller than 5 MB'
+  const ext = (file.name?.split('.').pop() || '').toLowerCase()
+  const typeOk = (ALLOWED_IMAGE_TYPES as readonly string[]).includes(file.type)
+  const extOk = !file.name || (ALLOWED_IMAGE_EXTENSIONS as readonly string[]).includes(ext)
+  if (!typeOk || !extOk) return 'Use a JPEG, PNG, WebP, or GIF image'
+  return null
+}
+
+export function safeImageExtension(file: { type: string; name?: string }): string {
+  const fromName = (file.name?.split('.').pop() || '').toLowerCase()
+  if ((ALLOWED_IMAGE_EXTENSIONS as readonly string[]).includes(fromName)) {
+    return fromName === 'jpeg' ? 'jpg' : fromName
+  }
+  if (file.type === 'image/png') return 'png'
+  if (file.type === 'image/webp') return 'webp'
+  if (file.type === 'image/gif') return 'gif'
+  return 'jpg'
+}
+
+export function supabaseStorageHostname(url = process.env.NEXT_PUBLIC_SUPABASE_URL): string | null {
+  if (!url) return null
+  try {
+    const host = new URL(url).hostname
+    return host.endsWith('.supabase.co') ? host : null
+  } catch {
+    return null
+  }
+}
+
 export function isSameOriginRequest(req: {
   headers: { get(name: string): string | null }
   url?: string

@@ -1,8 +1,11 @@
 import { createAdminClient } from '@/lib/supabase/admin'
 import {
+  MAX_IMAGE_BYTES,
   MIN_PASSWORD_LENGTH,
+  USERNAME_PATTERN,
   scoreChecks,
   summarizeChecks,
+  supabaseStorageHostname,
   type SecurityCheck,
   type SecurityCheckResult,
 } from '@/lib/security'
@@ -141,6 +144,37 @@ export async function runSecurityChecks(
     status: MIN_PASSWORD_LENGTH >= 8 ? 'pass' : 'fail',
     detail: `Signup, reset, and settings require at least ${MIN_PASSWORD_LENGTH} characters.`,
   })
+
+  checks.push({
+    id: 'username_policy',
+    title: 'Username format',
+    status: USERNAME_PATTERN.test('valid_user') ? 'pass' : 'fail',
+    detail: 'Usernames are limited to 3–30 letters, numbers, and underscores.',
+  })
+
+  checks.push({
+    id: 'image_upload_policy',
+    title: 'Image upload limits',
+    status: MAX_IMAGE_BYTES <= 5 * 1024 * 1024 ? 'pass' : 'warn',
+    detail: `Listings and avatars accept JPEG/PNG/WebP/GIF up to ${Math.round(MAX_IMAGE_BYTES / (1024 * 1024))} MB. SVG is blocked.`,
+  })
+
+  const storageHost = supabaseStorageHostname()
+  if (storageHost) {
+    checks.push({
+      id: 'image_optimizer_host',
+      title: 'Image optimizer host',
+      status: storageHost.includes('*') ? 'warn' : 'pass',
+      detail: `next/image is scoped to ${storageHost} instead of a wildcard Supabase host.`,
+    })
+  } else {
+    checks.push({
+      id: 'image_optimizer_host',
+      title: 'Image optimizer host',
+      status: 'warn',
+      detail: 'NEXT_PUBLIC_SUPABASE_URL is unset, so next/image falls back to *.supabase.co.',
+    })
+  }
 
   const nextVersion = getNextVersion()
   if (nextVersion && isVulnerableNextVersion(nextVersion)) {

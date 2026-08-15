@@ -7,7 +7,7 @@ import { createClient } from '@/lib/supabase/client'
 import toast from 'react-hot-toast'
 import Input from '@/components/ui/Input'
 import Button from '@/components/ui/Button'
-import { MIN_PASSWORD_LENGTH, passwordPolicyError } from '@/lib/security'
+import { MIN_PASSWORD_LENGTH, passwordPolicyError, usernamePolicyError } from '@/lib/security'
 
 export default function SignupPage() {
   const router = useRouter()
@@ -17,6 +17,11 @@ export default function SignupPage() {
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault()
+    const usernameError = usernamePolicyError(form.username)
+    if (usernameError) {
+      toast.error(usernameError)
+      return
+    }
     const policyError = passwordPolicyError(form.password)
     if (policyError) {
       toast.error(policyError)
@@ -60,7 +65,10 @@ export default function SignupPage() {
               onChange={(e) => setForm({ ...form, username: e.target.value })}
               placeholder="your_username"
               required
-              hint="This will be your public display name"
+              minLength={3}
+              maxLength={30}
+              pattern="[a-zA-Z0-9_]{3,30}"
+              hint="3–30 characters, letters, numbers, and underscore"
             />
             <Input
               label="Full name"

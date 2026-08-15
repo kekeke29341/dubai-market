@@ -13,7 +13,13 @@ import Image from 'next/image'
 import PushSubscribeButton from '@/components/pwa/PushSubscribeButton'
 import DeleteAccountButton from '@/components/settings/DeleteAccountButton'
 import { isNativeAppClient } from '@/lib/nativeApp'
-import { MIN_PASSWORD_LENGTH, passwordPolicyError } from '@/lib/security'
+import {
+  MIN_PASSWORD_LENGTH,
+  imageUploadError,
+  passwordPolicyError,
+  safeImageExtension,
+  usernamePolicyError,
+} from '@/lib/security'
 
 export default function SettingsPage() {
   const router = useRouter()
@@ -58,12 +64,13 @@ export default function SettingsPage() {
   const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file || !userId) return
-    if (file.size > 5 * 1024 * 1024) {
-      toast.error('Image must be smaller than 5 MB')
+    const uploadError = imageUploadError(file)
+    if (uploadError) {
+      toast.error(uploadError)
       return
     }
     setAvatarLoading(true)
-    const ext = file.name.split('.').pop()
+    const ext = safeImageExtension(file)
     const path = `${userId}/avatar.${ext}`
     const { data, error } = await supabase.storage
       .from('avatars')
@@ -86,14 +93,20 @@ export default function SettingsPage() {
     e.preventDefault()
     if (!userId) return
     // Validate username
-    if (!/^[a-zA-Z0-9_]{3,30}$/.test(username)) {
-      toast.error('Username: 3–30 chars, letters/numbers/underscore only')
+    const usernameError = usernamePolicyError(username)
+    if (usernameError) {
+      toast.error(usernameError)
       return
     }
     setLoading(true)
     const { error } = await supabase
       .from('profiles')
-      .update({ username, ...form })
+      .update({
+        username,
+        full_name: form.full_name,
+        bio: form.bio,
+        location: form.location,
+      })
       .eq('id', userId)
     if (error) {
       if (error.code === '23505') {
