@@ -8,6 +8,20 @@ import {
 
 type AdminClient = ReturnType<typeof createAdminClient>
 
+export function getNextVersion(): string | null {
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    return require('next/package.json').version as string
+  } catch {
+    return null
+  }
+}
+
+/** Versions called out by the 2025-12-11 Next.js advisory that this app may still pin. */
+export function isVulnerableNextVersion(version: string): boolean {
+  return version === '14.2.5'
+}
+
 interface DbGuardStatus {
   profile_privilege_trigger?: boolean
   item_admin_column_trigger?: boolean
@@ -98,6 +112,23 @@ export async function runSecurityChecks(
     status: 'pass',
     detail: 'Login redirectTo only accepts same-origin relative paths.',
   })
+
+  const nextVersion = getNextVersion()
+  if (nextVersion && isVulnerableNextVersion(nextVersion)) {
+    checks.push({
+      id: 'next_version',
+      title: 'Next.js security patches',
+      status: 'warn',
+      detail: `next@${nextVersion} has a known security advisory. Upgrade to a patched release.`,
+    })
+  } else if (nextVersion) {
+    checks.push({
+      id: 'next_version',
+      title: 'Next.js security patches',
+      status: 'pass',
+      detail: `Running next@${nextVersion}.`,
+    })
+  }
 
   const [pendingReports, flaggedItems, bannedUsers, prohibitedWords] = await Promise.all([
     countEq(admin, 'reports', 'status', 'pending'),

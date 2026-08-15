@@ -40,7 +40,7 @@ export default function AdminUserActions({ user }: AdminUserActionsProps) {
             ? 'user.grant_admin'
             : 'user.revoke_admin'
           : 'user.update'
-      await logAdminAction(action, 'profile', user.id, payload)
+      void logAdminAction(action, 'profile', user.id, payload)
       router.refresh()
     }
     setLoading(false)

@@ -42,7 +42,7 @@ export default function AdminItemActions({ item }: AdminItemActionsProps) {
             : Object.keys(payload).includes('admin_note')
               ? 'item.note'
               : 'item.update'
-      await logAdminAction(action, 'item', item.id, payload)
+      void logAdminAction(action, 'item', item.id, payload)
       router.refresh()
     }
     setLoading(false)

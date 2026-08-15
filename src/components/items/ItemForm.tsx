@@ -50,7 +50,7 @@ export default function ItemForm({ categories, initialData, mode = 'create' }: I
       .select('word')
       .eq('active', true)
       .then(({ data }) => {
-        if (data) setProhibitedWords(data.map((row) => row.word))
+        if (data?.length) setProhibitedWords(data.map((row) => row.word))
       })
       .catch(() => {
         // Table may not exist until the migration is applied.

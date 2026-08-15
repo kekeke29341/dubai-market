@@ -59,7 +59,7 @@ describe('sanitizeIlikePattern', () => {
   })
 
   it('strips PostgREST filter metacharacters', () => {
-    expect(sanitizeIlikePattern('foo,id.eq.1')).toBe('fooid1')
+    expect(sanitizeIlikePattern('foo,id.eq.1')).toBe('fooideq1')
   })
 
   it('strips wildcards and parentheses', () => {

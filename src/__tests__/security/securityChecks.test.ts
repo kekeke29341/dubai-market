@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { runSecurityChecks } from '@/lib/securityChecks'
+import { isVulnerableNextVersion, runSecurityChecks } from '@/lib/securityChecks'
 
 function makeAdmin(options: {
   counts?: Record<string, number | null>
@@ -122,5 +122,12 @@ describe('runSecurityChecks', () => {
       }),
     )
     expect(result.checks.find((c) => c.id === 'prohibited_words')?.status).toBe('fail')
+  })
+})
+
+describe('isVulnerableNextVersion', () => {
+  it('flags the pinned 14.2.5 advisory', () => {
+    expect(isVulnerableNextVersion('14.2.5')).toBe(true)
+    expect(isVulnerableNextVersion('14.2.35')).toBe(false)
   })
 })

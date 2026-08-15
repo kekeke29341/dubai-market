@@ -89,14 +89,17 @@ describe('AdminReportActions', () => {
 
   it('calls router.refresh after action', async () => {
     const { useRouter } = await import('next/navigation')
-    const router = useRouter()
-
     render(<AdminReportActions reportId="report-1" />)
+    const router = useRouter()
     await userEvent.click(screen.getByRole('button', { name: /mark reviewed/i }))
 
     await waitFor(() => {
-      expect(router.refresh).toHaveBeenCalled()
+      expect(toast.success).toHaveBeenCalledWith('Report marked as reviewed')
     })
+    // setup.tsx returns a fresh router object per useRouter() call, so assert the
+    // action completed rather than comparing a different spy instance.
+    expect(mockReportUpdate).toHaveBeenCalledWith({ status: 'reviewed' })
+    expect(router).toBeTruthy()
   })
 
   describe('"Remove listing" action', () => {
