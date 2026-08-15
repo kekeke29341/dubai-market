@@ -26,6 +26,9 @@ const mockItemsUpdate = vi.fn().mockResolvedValue({ error: null })
 const mockFrom = vi.fn().mockImplementation((table: string) => ({
   insert: mockItemsInsert,
   update: mockItemsUpdate.mockReturnValue({ eq: vi.fn().mockResolvedValue({ error: null }) }),
+  select: vi.fn().mockReturnValue({
+    eq: vi.fn().mockResolvedValue({ data: [], error: null }),
+  }),
 }))
 const mockGetUser = vi.fn().mockResolvedValue({
   data: { user: { id: 'user-1', email: 'test@example.com' } },
@@ -101,6 +104,30 @@ describe('ItemForm', () => {
     const submitBtn = screen.getByRole('button', { name: /list item/i })
     await userEvent.click(submitBtn)
     expect(toast.error).toHaveBeenCalledWith('Price must be greater than 0')
+  })
+
+  it('blocks submit when the title contains a prohibited word', async () => {
+    mockFrom.mockImplementation(() => ({
+      insert: mockItemsInsert,
+      update: mockItemsUpdate.mockReturnValue({ eq: vi.fn().mockResolvedValue({ error: null }) }),
+      select: vi.fn().mockReturnValue({
+        eq: vi.fn().mockResolvedValue({ data: [{ word: 'weapon' }], error: null }),
+      }),
+    }))
+
+    render(<ItemForm categories={categories} />)
+    await waitFor(() => {
+      expect(mockFrom).toHaveBeenCalledWith('prohibited_words')
+    })
+
+    await userEvent.type(screen.getByLabelText(/title/i), 'weapon for sale')
+    const priceInput = screen.getByRole('spinbutton')
+    await userEvent.clear(priceInput)
+    await userEvent.type(priceInput, '100')
+    await userEvent.click(screen.getByRole('button', { name: /list item/i }))
+
+    expect(toast.error).toHaveBeenCalledWith('Your listing contains prohibited content: weapon')
+    expect(mockItemsInsert).not.toHaveBeenCalled()
   })
 
   it('submits successfully with valid data', async () => {

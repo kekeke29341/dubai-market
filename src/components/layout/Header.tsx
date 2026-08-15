@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { Search, MessageCircle, Heart, User, Plus, LogOut, Bell } from 'lucide-react'
+import { Search, MessageCircle, Heart, User, Plus, LogOut, Bell, Shield } from 'lucide-react'
 import type { User as SupabaseUser } from '@supabase/supabase-js'
 import { useUnreadCount } from '@/hooks/useUnreadCount'
 import { useNotificationCount } from '@/hooks/useNotificationCount'
@@ -12,6 +12,7 @@ import { useNotificationCount } from '@/hooks/useNotificationCount'
 export default function Header() {
   const router = useRouter()
   const [user, setUser] = useState<SupabaseUser | null>(null)
+  const [isAdmin, setIsAdmin] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const unreadCount = useUnreadCount()
   const notifCount = useNotificationCount()
@@ -19,9 +20,22 @@ export default function Header() {
   useEffect(() => {
     try {
       const supabase = createClient()
-      supabase.auth.getUser().then(({ data }) => setUser(data.user))
+      supabase.auth.getUser().then(async ({ data }) => {
+        setUser(data.user)
+        if (data.user) {
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('is_admin')
+            .eq('id', data.user.id)
+            .single()
+          setIsAdmin(!!profile?.is_admin)
+        } else {
+          setIsAdmin(false)
+        }
+      })
       const { data: { subscription } } = supabase.auth.onAuthStateChange((_, session) => {
         setUser(session?.user ?? null)
+        if (!session?.user) setIsAdmin(false)
       })
       return () => subscription.unsubscribe()
     } catch {
@@ -105,6 +119,11 @@ export default function Header() {
                 <Link href="/mypage" className="p-2 hover:bg-gray-100 rounded-full transition" title="My Page">
                   <User className="w-5 h-5 text-gray-600" />
                 </Link>
+                {isAdmin && (
+                  <Link href="/admin" className="p-2 hover:bg-gray-100 rounded-full transition" title="Admin" aria-label="Admin panel">
+                    <Shield className="w-5 h-5 text-amber-600" />
+                  </Link>
+                )}
                 <button
                   onClick={handleSignOut}
                   className="p-2 hover:bg-gray-100 rounded-full transition"

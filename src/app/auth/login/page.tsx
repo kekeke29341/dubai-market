@@ -7,13 +7,12 @@ import { createClient } from '@/lib/supabase/client'
 import toast from 'react-hot-toast'
 import Input from '@/components/ui/Input'
 import Button from '@/components/ui/Button'
+import { sanitizeRedirect } from '@/lib/security'
 
 function LoginForm() {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const rawRedirect = searchParams.get('redirectTo') || '/'
-  // Prevent open redirect: only allow same-origin relative paths
-  const redirectTo = rawRedirect.startsWith('/') && !rawRedirect.startsWith('//') ? rawRedirect : '/'
+  const redirectTo = sanitizeRedirect(searchParams.get('redirectTo'))
 
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')

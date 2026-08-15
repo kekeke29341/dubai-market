@@ -1,5 +1,6 @@
 import { createAdminClient } from '@/lib/supabase/admin'
 import { formatPrice, formatRelativeTime } from '@/lib/utils'
+import { sanitizeIlikePattern } from '@/lib/security'
 import Link from 'next/link'
 import AdminItemActions from '@/components/admin/AdminItemActions'
 import { Search } from 'lucide-react'
@@ -30,7 +31,8 @@ export default async function AdminItemsPage({ searchParams }: PageProps) {
 
   if (searchParams.status) query = query.eq('status', searchParams.status)
   if (searchParams.flagged === 'true') query = query.eq('is_flagged', true)
-  if (searchParams.q) query = query.ilike('title', `%${searchParams.q}%`)
+  const q = searchParams.q ? sanitizeIlikePattern(searchParams.q) : ''
+  if (q) query = query.ilike('title', `%${q}%`)
 
   const { data: items, count } = await query
   const totalPages = Math.ceil((count ?? 0) / PAGE_SIZE)

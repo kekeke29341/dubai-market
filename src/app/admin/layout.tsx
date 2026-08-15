@@ -1,7 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
-import { LayoutDashboard, Package, Users, Flag, ChevronRight } from 'lucide-react'
+import { LayoutDashboard, Package, Users, Flag, Shield, ChevronRight } from 'lucide-react'
 import AdminSignOutButton from '@/components/admin/AdminSignOutButton'
 
 export const metadata = { title: 'Admin — Dubai Market' }
@@ -24,6 +24,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     { href: '/admin/items', label: 'Items', icon: Package },
     { href: '/admin/users', label: 'Users', icon: Users },
     { href: '/admin/reports', label: 'Reports', icon: Flag },
+    { href: '/admin/security', label: 'Security', icon: Shield },
   ]
 
   return (

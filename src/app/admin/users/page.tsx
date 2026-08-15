@@ -1,5 +1,6 @@
 import { createAdminClient } from '@/lib/supabase/admin'
 import { formatRelativeTime, getInitials } from '@/lib/utils'
+import { sanitizeIlikePattern } from '@/lib/security'
 import Link from 'next/link'
 import { Search } from 'lucide-react'
 import AdminUserActions from '@/components/admin/AdminUserActions'
@@ -26,8 +27,9 @@ export default async function AdminUsersPage({ searchParams }: PageProps) {
     .order('created_at', { ascending: false })
     .range(offset, offset + PAGE_SIZE - 1)
 
-  if (searchParams.q) {
-    query = query.or(`username.ilike.%${searchParams.q}%,full_name.ilike.%${searchParams.q}%`)
+  const q = searchParams.q ? sanitizeIlikePattern(searchParams.q) : ''
+  if (q) {
+    query = query.or(`username.ilike.%${q}%,full_name.ilike.%${q}%`)
   }
   if (searchParams.filter === 'admin') query = query.eq('is_admin', true)
   if (searchParams.filter === 'banned') query = query.eq('is_banned', true)

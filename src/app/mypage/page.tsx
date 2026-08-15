@@ -3,7 +3,7 @@ import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
 import { formatRelativeTime, getInitials } from '@/lib/utils'
-import { Settings, Plus, Heart, Package, Star, Clock, TrendingUp } from 'lucide-react'
+import { Settings, Plus, Heart, Package, Star, Clock, TrendingUp, Shield } from 'lucide-react'
 import MyPageTabs from '@/components/layout/MyPageTabs'
 import MyPageItemGrid from '@/components/mypage/MyPageItemGrid'
 
@@ -22,7 +22,7 @@ export default async function MyPage({ searchParams }: PageProps) {
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('*, points_balance, total_points_earned')
+    .select('*, points_balance, total_points_earned, is_admin')
     .eq('id', user.id)
     .single()
 
@@ -95,6 +95,16 @@ export default async function MyPage({ searchParams }: PageProps) {
               )}
             </div>
             <div className="flex gap-1.5 sm:gap-2 flex-shrink-0">
+              {(profile as any)?.is_admin && (
+                <Link
+                  href="/admin"
+                  aria-label="Admin panel"
+                  className="p-2.5 border border-amber-200 bg-amber-50 rounded-full active:bg-amber-100 transition"
+                  title="Admin panel"
+                >
+                  <Shield className="w-4 h-4 text-amber-600" />
+                </Link>
+              )}
               <Link
                 href="/sell"
                 className="hidden sm:flex items-center gap-1.5 bg-amber-500 hover:bg-amber-600 text-white px-4 py-2 rounded-full text-sm font-medium transition"

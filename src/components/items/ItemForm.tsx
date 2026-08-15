@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useDropzone } from 'react-dropzone'
 import { createClient } from '@/lib/supabase/client'
@@ -8,7 +8,8 @@ import { Category, Item, ItemCondition } from '@/types'
 import Input from '@/components/ui/Input'
 import Button from '@/components/ui/Button'
 import toast from 'react-hot-toast'
-import { Upload, X, GripVertical } from 'lucide-react'
+import { Upload, X } from 'lucide-react'
+import { findProhibitedMatches } from '@/lib/security'
 import Image from 'next/image'
 
 interface ItemFormProps {
@@ -40,6 +41,21 @@ export default function ItemForm({ categories, initialData, mode = 'create' }: I
   const [uploadingImages, setUploadingImages] = useState<string[]>([])
   const [loading, setLoading] = useState(false)
   const [draftLoading, setDraftLoading] = useState(false)
+  const [prohibitedWords, setProhibitedWords] = useState<string[]>([])
+
+  useEffect(() => {
+    const client = createClient()
+    client
+      .from('prohibited_words')
+      .select('word')
+      .eq('active', true)
+      .then(({ data }) => {
+        if (data) setProhibitedWords(data.map((row) => row.word))
+      })
+      .catch(() => {
+        // Table may not exist until the migration is applied.
+      })
+  }, [])
 
   const onDrop = useCallback(async (acceptedFiles: File[]) => {
     const { data: { user } } = await supabase.auth.getUser()
@@ -89,6 +105,12 @@ export default function ItemForm({ categories, initialData, mode = 'create' }: I
     }
     if (!title.trim()) {
       toast.error('Title is required even for drafts')
+      return
+    }
+
+    const hits = findProhibitedMatches(`${title} ${description} ${brand}`, prohibitedWords)
+    if (hits.length > 0) {
+      toast.error(`Your listing contains prohibited content: ${hits.join(', ')}`)
       return
     }
 

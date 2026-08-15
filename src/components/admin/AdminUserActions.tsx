@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { MoreHorizontal, Shield, ShieldOff, Ban, CheckCircle } from 'lucide-react'
 import toast from 'react-hot-toast'
+import { logAdminAction } from '@/lib/adminAudit'
 
 interface AdminUserActionsProps {
   user: {
@@ -30,6 +31,16 @@ export default function AdminUserActions({ user }: AdminUserActionsProps) {
       toast.error(error.message)
     } else {
       toast.success('User updated')
+      const action = Object.keys(payload).includes('is_banned')
+        ? payload.is_banned
+          ? 'user.ban'
+          : 'user.unban'
+        : Object.keys(payload).includes('is_admin')
+          ? payload.is_admin
+            ? 'user.grant_admin'
+            : 'user.revoke_admin'
+          : 'user.update'
+      await logAdminAction(action, 'profile', user.id, payload)
       router.refresh()
     }
     setLoading(false)

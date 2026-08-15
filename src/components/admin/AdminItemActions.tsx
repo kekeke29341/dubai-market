@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { MoreHorizontal, Flag, Trash2, CheckCircle, StickyNote } from 'lucide-react'
 import toast from 'react-hot-toast'
+import { logAdminAction } from '@/lib/adminAudit'
 
 interface AdminItemActionsProps {
   item: {
@@ -30,6 +31,18 @@ export default function AdminItemActions({ item }: AdminItemActionsProps) {
       toast.error(error.message)
     } else {
       toast.success('Updated')
+      const action = Object.keys(payload).includes('is_flagged')
+        ? payload.is_flagged
+          ? 'item.flag'
+          : 'item.unflag'
+        : payload.status === 'deleted'
+          ? 'item.delete'
+          : payload.status === 'active'
+            ? 'item.restore'
+            : Object.keys(payload).includes('admin_note')
+              ? 'item.note'
+              : 'item.update'
+      await logAdminAction(action, 'item', item.id, payload)
       router.refresh()
     }
     setLoading(false)

@@ -2,10 +2,7 @@ import type { Metadata, Viewport } from 'next'
 import { Inter } from 'next/font/google'
 import './globals.css'
 import { Toaster } from 'react-hot-toast'
-import Header from '@/components/layout/Header'
-import Footer from '@/components/layout/Footer'
-import BottomNav from '@/components/layout/BottomNav'
-import MainShell from '@/components/layout/MainShell'
+import SiteChrome from '@/components/layout/SiteChrome'
 import ServiceWorkerRegistrar from '@/components/pwa/ServiceWorkerRegistrar'
 import NativeAppBootstrap from '@/components/native/NativeAppBootstrap'
 
@@ -53,12 +50,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
-        <div className="min-h-dvh flex flex-col">
-          <Header />
-          <MainShell>{children}</MainShell>
-          <Footer />
-        </div>
-        <BottomNav />
+        <SiteChrome>{children}</SiteChrome>
         <NativeAppBootstrap />
         <ServiceWorkerRegistrar />
         <Toaster

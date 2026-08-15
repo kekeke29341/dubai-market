@@ -1,10 +1,5 @@
 import { describe, it, expect } from 'vitest'
-
-// Replicate the sanitization logic from login/page.tsx
-function sanitizeRedirect(raw: string | null): string {
-  const redirectTo = raw ?? '/'
-  return redirectTo.startsWith('/') && !redirectTo.startsWith('//') ? redirectTo : '/'
-}
+import { sanitizeRedirect } from '@/lib/security'
 
 describe('Open Redirect protection (login redirectTo param)', () => {
   it('allows same-origin relative path', () => {

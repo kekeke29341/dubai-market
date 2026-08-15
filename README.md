@@ -114,11 +114,22 @@ where username = 'your_username';
 
 ### Admin features
 
-- **Dashboard** — live stats: total users, active listings, sold items, messages, flagged items; recent activity tables
+- **Dashboard** — live stats: users, listings, messages, flagged items, pending reports, banned accounts, security score
 - **Items management** — filter by status/flagged, keyword search, pagination; flag items, add internal notes, delete, restore
 - **Users management** — filter by admin/banned, search; grant/revoke admin, ban with reason, unban
+- **Reports** — review user-submitted listing reports
+- **Security** — automated security checks, prohibited-word list, and admin audit log (`/admin/security`)
 
 Access the panel at `https://your-site.vercel.app/admin`. Non-admin users are redirected to the homepage.
+
+### Security hardening SQL
+
+After `schema.sql` and `admin_patch.sql`, run `supabase/security_hardening_migration.sql` in the Supabase SQL Editor. It:
+
+- Blocks users from granting themselves `is_admin` or clearing a ban
+- Prevents sellers from overwriting `is_flagged` / `admin_note`
+- Stops banned accounts from creating listings or sending messages
+- Adds `admin_audit_logs` and `security_check_status()` for the Security page
 
 ---
 
@@ -134,12 +145,12 @@ src/
     mypage/              # My listings, sold, favorites
     profile/[id]/        # Public seller profile
     auth/                # Login, signup
-    admin/               # Admin panel (dashboard, items, users)
+    admin/               # Admin panel (dashboard, items, users, reports, security)
   components/
     layout/              # Header, Footer, tabs
     items/               # ItemCard, ItemForm, CategoryBar, FilterBar
     messages/            # ChatWindow
-    admin/               # AdminItemActions, AdminUserActions, SignOutButton
+    admin/               # AdminItemActions, AdminUserActions, SecurityCheckList
     ui/                  # Button, Input, Badge
   lib/
     supabase/            # Client, server, admin, middleware helpers
@@ -148,6 +159,7 @@ src/
 supabase/
   schema.sql             # Full database schema + RLS + triggers
   admin_patch.sql        # Admin columns + policies (run after schema.sql)
+  security_hardening_migration.sql  # Privilege guards, ban blocks, audit log
 ```
 
 ---

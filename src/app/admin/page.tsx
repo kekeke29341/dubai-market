@@ -1,7 +1,8 @@
 import { createAdminClient } from '@/lib/supabase/admin'
-import { Users, Package, MessageCircle, Heart, TrendingUp, AlertTriangle } from 'lucide-react'
+import { Users, Package, MessageCircle, TrendingUp, AlertTriangle, Flag, Ban, Shield } from 'lucide-react'
 import Link from 'next/link'
 import { formatRelativeTime, formatPrice, getInitials } from '@/lib/utils'
+import { runSecurityChecks } from '@/lib/securityChecks'
 
 export const revalidate = 0
 
@@ -16,8 +17,11 @@ export default async function AdminDashboard() {
     { count: soldItems },
     { count: totalMessages },
     { count: flaggedItems },
+    { count: pendingReports },
+    { count: bannedUsers },
     { data: recentItems },
     { data: recentUsers },
+    security,
   ] = await Promise.all([
     admin.from('profiles').select('*', { count: 'exact', head: true }),
     admin.from('items').select('*', { count: 'exact', head: true }).neq('status', 'deleted'),
@@ -25,6 +29,8 @@ export default async function AdminDashboard() {
     admin.from('items').select('*', { count: 'exact', head: true }).eq('status', 'sold'),
     admin.from('messages').select('*', { count: 'exact', head: true }),
     admin.from('items').select('*', { count: 'exact', head: true }).eq('is_flagged', true),
+    admin.from('reports').select('*', { count: 'exact', head: true }).eq('status', 'pending'),
+    admin.from('profiles').select('*', { count: 'exact', head: true }).eq('is_banned', true),
     admin
       .from('items')
       .select('id, title, price, currency, status, created_at, profiles(username)')
@@ -36,6 +42,7 @@ export default async function AdminDashboard() {
       .select('id, username, created_at, is_admin, is_banned')
       .order('created_at', { ascending: false })
       .limit(5),
+    runSecurityChecks(admin),
   ])
 
   const stats = [
@@ -45,6 +52,9 @@ export default async function AdminDashboard() {
     { label: 'Total Messages', value: totalMessages ?? 0, icon: MessageCircle, color: 'bg-purple-50 text-purple-600', href: '/admin/items' },
     { label: 'Total Items', value: totalItems ?? 0, icon: Package, color: 'bg-gray-50 text-gray-600', href: '/admin/items' },
     { label: 'Flagged Items', value: flaggedItems ?? 0, icon: AlertTriangle, color: 'bg-red-50 text-red-600', href: '/admin/items?flagged=true' },
+    { label: 'Pending Reports', value: pendingReports ?? 0, icon: Flag, color: 'bg-orange-50 text-orange-600', href: '/admin/reports' },
+    { label: 'Banned Users', value: bannedUsers ?? 0, icon: Ban, color: 'bg-rose-50 text-rose-600', href: '/admin/users?filter=banned' },
+    { label: 'Security Score', value: security.score, icon: Shield, color: 'bg-emerald-50 text-emerald-600', href: '/admin/security' },
   ]
 
   return (

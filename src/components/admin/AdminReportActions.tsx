@@ -5,6 +5,7 @@ import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import toast from 'react-hot-toast'
 import { Check, X, Trash2 } from 'lucide-react'
+import { logAdminAction } from '@/lib/adminAudit'
 
 interface AdminReportActionsProps {
   reportId: string
@@ -26,6 +27,7 @@ export default function AdminReportActions({ reportId, itemId }: AdminReportActi
       toast.error('Failed to update report')
     } else {
       toast.success(`Report marked as ${status}`)
+      await logAdminAction(`report.${status}`, 'report', reportId, { status })
       router.refresh()
     }
     setLoading(null)
@@ -38,6 +40,7 @@ export default function AdminReportActions({ reportId, itemId }: AdminReportActi
     const supabase = createClient()
     await supabase.from('items').update({ status: 'deleted' }).eq('id', itemId)
     await supabase.from('reports').update({ status: 'resolved' }).eq('id', reportId)
+    await logAdminAction('report.remove_listing', 'report', reportId, { itemId })
     toast.success('Listing removed and report resolved')
     router.refresh()
     setLoading(null)
