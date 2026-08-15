@@ -3,6 +3,7 @@ import { runSecurityChecks } from '@/lib/securityChecks'
 import { formatRelativeTime } from '@/lib/utils'
 import SecurityCheckList from '@/components/admin/SecurityCheckList'
 import AdminProhibitedWords from '@/components/admin/AdminProhibitedWords'
+import RefreshSecurityButton from '@/components/admin/RefreshSecurityButton'
 import { Shield } from 'lucide-react'
 
 export const revalidate = 0
@@ -44,9 +45,10 @@ export default async function AdminSecurityPage() {
         <div className="bg-white border border-gray-200 rounded-xl px-5 py-3 text-right">
           <p className="text-xs text-gray-500">Security score</p>
           <p className={`text-3xl font-bold ${scoreColor(result.score)}`}>{result.score}</p>
-          <p className="text-[11px] text-gray-400">
+          <p className="text-[11px] text-gray-400 mb-2">
             {result.summary.pass} pass · {result.summary.warn} warn · {result.summary.fail} fail
           </p>
+          <RefreshSecurityButton />
         </div>
       </div>
 

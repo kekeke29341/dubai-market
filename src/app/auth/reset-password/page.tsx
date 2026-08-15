@@ -7,6 +7,7 @@ import toast from 'react-hot-toast'
 import Input from '@/components/ui/Input'
 import Button from '@/components/ui/Button'
 import { Eye, EyeOff } from 'lucide-react'
+import { MIN_PASSWORD_LENGTH, passwordPolicyError } from '@/lib/security'
 
 export default function ResetPasswordPage() {
   const router = useRouter()
@@ -43,8 +44,9 @@ export default function ResetPasswordPage() {
       toast.error('Passwords do not match')
       return
     }
-    if (password.length < 8) {
-      toast.error('Password must be at least 8 characters')
+    const policyError = passwordPolicyError(password)
+    if (policyError) {
+      toast.error(policyError)
       return
     }
     setLoading(true)
@@ -91,7 +93,8 @@ export default function ResetPasswordPage() {
                   type={showPwd ? 'text' : 'password'}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="At least 8 characters"
+                  placeholder={`At least ${MIN_PASSWORD_LENGTH} characters`}
+                  minLength={MIN_PASSWORD_LENGTH}
                   required
                   className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 transition"
                 />

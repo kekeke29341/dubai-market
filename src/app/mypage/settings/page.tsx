@@ -13,6 +13,7 @@ import Image from 'next/image'
 import PushSubscribeButton from '@/components/pwa/PushSubscribeButton'
 import DeleteAccountButton from '@/components/settings/DeleteAccountButton'
 import { isNativeAppClient } from '@/lib/nativeApp'
+import { MIN_PASSWORD_LENGTH, passwordPolicyError } from '@/lib/security'
 
 export default function SettingsPage() {
   const router = useRouter()
@@ -113,8 +114,9 @@ export default function SettingsPage() {
       toast.error('Passwords do not match')
       return
     }
-    if (pwdForm.newPwd.length < 8) {
-      toast.error('Password must be at least 8 characters')
+    const policyError = passwordPolicyError(pwdForm.newPwd)
+    if (policyError) {
+      toast.error(policyError)
       return
     }
     setPwdLoading(true)
@@ -243,7 +245,8 @@ export default function SettingsPage() {
                 type={showPwd ? 'text' : 'password'}
                 value={pwdForm.newPwd}
                 onChange={(e) => setPwdForm({ ...pwdForm, newPwd: e.target.value })}
-                placeholder="At least 8 characters"
+                placeholder={`At least ${MIN_PASSWORD_LENGTH} characters`}
+                minLength={MIN_PASSWORD_LENGTH}
                 className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 transition"
               />
               <button

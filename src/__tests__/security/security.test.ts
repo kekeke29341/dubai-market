@@ -8,6 +8,9 @@ import {
   normalizeProhibitedWord,
   scoreChecks,
   summarizeChecks,
+  passwordPolicyError,
+  isSameOriginRequest,
+  MIN_PASSWORD_LENGTH,
   type SecurityCheck,
 } from '@/lib/security'
 
@@ -126,5 +129,44 @@ describe('check scoring', () => {
 
   it('returns 100 when only info checks exist', () => {
     expect(scoreChecks([{ id: 'i', title: 'I', status: 'info', detail: '' }])).toBe(100)
+  })
+})
+
+describe('password policy', () => {
+  it('requires the shared minimum length', () => {
+    expect(MIN_PASSWORD_LENGTH).toBeGreaterThanOrEqual(8)
+    expect(passwordPolicyError('short')).toBe('Password must be at least 8 characters')
+    expect(passwordPolicyError('longenough')).toBeNull()
+  })
+})
+
+describe('isSameOriginRequest', () => {
+  const headers = (init: Record<string, string>) => ({
+    get: (name: string) => init[name.toLowerCase()] ?? null,
+  })
+
+  it('allows a matching Origin', () => {
+    expect(
+      isSameOriginRequest({
+        headers: headers({ host: 'app.example', origin: 'https://app.example' }),
+        url: 'https://app.example/api/admin/prohibited-words',
+      }),
+    ).toBe(true)
+  })
+
+  it('blocks a foreign Origin', () => {
+    expect(
+      isSameOriginRequest({
+        headers: headers({ host: 'app.example', origin: 'https://evil.test' }),
+      }),
+    ).toBe(false)
+  })
+
+  it('falls back to Referer when Origin is omitted', () => {
+    expect(
+      isSameOriginRequest({
+        headers: headers({ host: 'app.example', referer: 'https://app.example/admin' }),
+      }),
+    ).toBe(true)
   })
 })

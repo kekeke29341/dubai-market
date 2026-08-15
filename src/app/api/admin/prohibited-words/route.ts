@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/admin'
-import { adminAuthError, requireAdmin } from '@/lib/adminAuth'
+import { adminAuthError, rejectCrossOrigin, requireAdmin } from '@/lib/adminAuth'
 import { normalizeProhibitedWord } from '@/lib/security'
 
 export const dynamic = 'force-dynamic'
@@ -23,6 +23,8 @@ export async function GET() {
 }
 
 export async function POST(req: NextRequest) {
+  const originError = rejectCrossOrigin(req)
+  if (originError) return originError
   const auth = await requireAdmin()
   if (!auth.ok) return adminAuthError(auth)
 
@@ -58,6 +60,8 @@ export async function POST(req: NextRequest) {
 }
 
 export async function PATCH(req: NextRequest) {
+  const originError = rejectCrossOrigin(req)
+  if (originError) return originError
   const auth = await requireAdmin()
   if (!auth.ok) return adminAuthError(auth)
 
@@ -106,6 +110,8 @@ export async function PATCH(req: NextRequest) {
 }
 
 export async function DELETE(req: NextRequest) {
+  const originError = rejectCrossOrigin(req)
+  if (originError) return originError
   const auth = await requireAdmin()
   if (!auth.ok) return adminAuthError(auth)
 

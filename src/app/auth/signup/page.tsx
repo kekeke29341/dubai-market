@@ -7,6 +7,7 @@ import { createClient } from '@/lib/supabase/client'
 import toast from 'react-hot-toast'
 import Input from '@/components/ui/Input'
 import Button from '@/components/ui/Button'
+import { MIN_PASSWORD_LENGTH, passwordPolicyError } from '@/lib/security'
 
 export default function SignupPage() {
   const router = useRouter()
@@ -16,8 +17,9 @@ export default function SignupPage() {
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (form.password.length < 6) {
-      toast.error('Password must be at least 6 characters')
+    const policyError = passwordPolicyError(form.password)
+    if (policyError) {
+      toast.error(policyError)
       return
     }
     setLoading(true)
@@ -79,7 +81,8 @@ export default function SignupPage() {
               type="password"
               value={form.password}
               onChange={(e) => setForm({ ...form, password: e.target.value })}
-              placeholder="At least 6 characters"
+              placeholder={`At least ${MIN_PASSWORD_LENGTH} characters`}
+              minLength={MIN_PASSWORD_LENGTH}
               required
             />
             <Button type="submit" loading={loading} className="w-full mt-2">

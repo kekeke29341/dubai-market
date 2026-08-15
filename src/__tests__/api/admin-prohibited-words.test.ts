@@ -6,14 +6,18 @@ const update = vi.fn()
 const del = vi.fn()
 const select = vi.fn()
 
-vi.mock('@/lib/adminAuth', () => ({
-  requireAdmin: () => requireAdmin(),
-  adminAuthError: (result: { error: string; status: number }) =>
-    new Response(JSON.stringify({ error: result.error }), {
-      status: result.status,
-      headers: { 'Content-Type': 'application/json' },
-    }),
-}))
+vi.mock('@/lib/adminAuth', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@/lib/adminAuth')>()
+  return {
+    ...actual,
+    requireAdmin: () => requireAdmin(),
+    adminAuthError: (result: { error: string; status: number }) =>
+      new Response(JSON.stringify({ error: result.error }), {
+        status: result.status,
+        headers: { 'Content-Type': 'application/json' },
+      }),
+  }
+})
 
 vi.mock('@/lib/supabase/admin', () => ({
   createAdminClient: () => ({
@@ -78,6 +82,22 @@ describe('/api/admin/prohibited-words', () => {
     const body = await res.json()
     expect(res.status).toBe(200)
     expect(body.words[0].word).toBe('weapon')
+  })
+
+  it('rejects a cross-origin POST', async () => {
+    const { POST } = await import('@/app/api/admin/prohibited-words/route')
+    const req = new Request('http://localhost/api/admin/prohibited-words', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Host: 'localhost',
+        Origin: 'https://evil.test',
+      },
+      body: JSON.stringify({ word: 'weapon' }),
+    }) as any
+    const res = await POST(req)
+    expect(res.status).toBe(403)
+    expect(insert).not.toHaveBeenCalled()
   })
 
   it('rejects an invalid word on POST', async () => {

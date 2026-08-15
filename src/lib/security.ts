@@ -2,6 +2,42 @@
  * Shared security helpers used by auth, admin search, listing checks, and middleware.
  */
 
+export const MIN_PASSWORD_LENGTH = 8
+
+export function passwordPolicyError(password: string): string | null {
+  if (password.length < MIN_PASSWORD_LENGTH) {
+    return `Password must be at least ${MIN_PASSWORD_LENGTH} characters`
+  }
+  return null
+}
+
+export function isSameOriginRequest(req: {
+  headers: { get(name: string): string | null }
+  url?: string
+}): boolean {
+  const host =
+    req.headers.get('host') ||
+    (req.url ? new URL(req.url).host : null)
+  if (!host) return false
+
+  const origin = req.headers.get('origin')
+  if (origin) {
+    try {
+      return new URL(origin).host === host
+    } catch {
+      return false
+    }
+  }
+
+  const referer = req.headers.get('referer')
+  if (!referer) return true
+  try {
+    return new URL(referer).host === host
+  } catch {
+    return false
+  }
+}
+
 export const SECURITY_HEADERS: { key: string; value: string }[] = [
   { key: 'X-Frame-Options', value: 'DENY' },
   { key: 'X-Content-Type-Options', value: 'nosniff' },

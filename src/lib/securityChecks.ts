@@ -1,5 +1,6 @@
 import { createAdminClient } from '@/lib/supabase/admin'
 import {
+  MIN_PASSWORD_LENGTH,
   scoreChecks,
   summarizeChecks,
   type SecurityCheck,
@@ -132,6 +133,13 @@ export async function runSecurityChecks(
     title: 'Open-redirect protection',
     status: 'pass',
     detail: 'Login redirectTo only accepts same-origin relative paths.',
+  })
+
+  checks.push({
+    id: 'password_policy',
+    title: 'Password minimum length',
+    status: MIN_PASSWORD_LENGTH >= 8 ? 'pass' : 'fail',
+    detail: `Signup, reset, and settings require at least ${MIN_PASSWORD_LENGTH} characters.`,
   })
 
   const nextVersion = getNextVersion()

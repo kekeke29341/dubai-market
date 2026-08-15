@@ -1,5 +1,6 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { isSameOriginRequest } from '@/lib/security'
 
 export type AdminAuthOk = {
   ok: true
@@ -46,4 +47,9 @@ export async function requireAdmin(): Promise<AdminAuthOk | AdminAuthFail> {
 
 export function adminAuthError(result: AdminAuthFail) {
   return NextResponse.json({ error: result.error }, { status: result.status })
+}
+
+export function rejectCrossOrigin(req: NextRequest) {
+  if (isSameOriginRequest(req)) return null
+  return NextResponse.json({ error: 'Forbidden origin' }, { status: 403 })
 }
